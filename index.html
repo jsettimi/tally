@@ -451,36 +451,68 @@
           <div style="width:10px;height:10px;border-radius:50%;background:{{ selectedEntry.color }}"></div>
           <div style="font:600 12px Inter;color:{{theme.textMuted}}">{{ selectedEntry.category }}</div>
         </div>
-        <div onClick="{{ closeDetail }}" style="cursor:pointer;font:600 18px Inter;color:{{theme.textMuted}};line-height:1">✕</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <sc-if value="{{ selectedEntry.isViewing }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ selectedEntry.startEdit }}" style="cursor:pointer;font:600 12px Inter;color:{{theme.textMuted}}">Edit</div>
+            <div onClick="{{ selectedEntry.requestDelete }}" style="cursor:pointer;font:600 12px Inter;color:#f85149">Delete</div>
+          </sc-if>
+          <div onClick="{{ closeDetail }}" style="cursor:pointer;font:600 18px Inter;color:{{theme.textMuted}};line-height:1">✕</div>
+        </div>
       </div>
-      <sc-if value="{{ selectedEntry.hasBreadcrumb }}" hint-placeholder-val="{{ false }}">
-        <div style="font:500 11px Inter;color:{{theme.textFaint}}">{{ selectedEntry.breadcrumb }}</div>
+
+      <sc-if value="{{ selectedEntry.isViewing }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ selectedEntry.hasBreadcrumb }}" hint-placeholder-val="{{ false }}">
+          <div style="font:500 11px Inter;color:{{theme.textFaint}}">{{ selectedEntry.breadcrumb }}</div>
+        </sc-if>
+        <div style="font:800 22px Inter;letter-spacing:-.3px">{{ selectedEntry.name }}</div>
+        <div style="display:flex;gap:22px">
+          <div>
+            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Elo</div>
+            <div style="font:800 30px 'JetBrains Mono',monospace;color:{{ selectedEntry.color }}">{{ selectedEntry.elo }}</div>
+          </div>
+          <div>
+            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Rank</div>
+            <div style="font:800 30px 'JetBrains Mono',monospace">{{ selectedEntry.rankLabel }}</div>
+          </div>
+          <div>
+            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Logged</div>
+            <div style="font:700 15px 'JetBrains Mono',monospace;margin-top:8px">{{ selectedEntry.dateDisplay }}</div>
+          </div>
+        </div>
+        <div>
+          <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">Percentile in category</div>
+          <div style="height:8px;border-radius:4px;background:{{theme.trackBg}}">
+            <div style="height:100%;width:{{ selectedEntry.eloPct }}%;background:{{ selectedEntry.color }};border-radius:4px"></div>
+          </div>
+        </div>
+        <sc-if value="{{ selectedEntry.hasNote }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">Note</div>
+            <div style="font:400 14px/1.5 Inter;color:{{theme.text}}">{{ selectedEntry.note }}</div>
+          </div>
+        </sc-if>
       </sc-if>
-      <div style="font:800 22px Inter;letter-spacing:-.3px">{{ selectedEntry.name }}</div>
-      <div style="display:flex;gap:22px">
+
+      <sc-if value="{{ selectedEntry.isEditing }}" hint-placeholder-val="{{ false }}">
         <div>
-          <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Elo</div>
-          <div style="font:800 30px 'JetBrains Mono',monospace;color:{{ selectedEntry.color }}">{{ selectedEntry.elo }}</div>
+          <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
+          <input value="{{ selectedEntry.editName }}" onChange="{{ selectedEntry.handleEditNameChange }}" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
         </div>
         <div>
-          <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Rank</div>
-          <div style="font:800 30px 'JetBrains Mono',monospace">{{ selectedEntry.rankLabel }}</div>
+          <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Note <span style="text-transform:none;color:{{theme.textFaint}}">(optional)</span></div>
+          <input value="{{ selectedEntry.editNote }}" onChange="{{ selectedEntry.handleEditNoteChange }}" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
         </div>
         <div>
-          <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}}">Logged</div>
-          <div style="font:700 15px 'JetBrains Mono',monospace;margin-top:8px">{{ selectedEntry.dateDisplay }}</div>
+          <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Category</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ selectedEntry.editCategoryChips }}" as="c" hint-placeholder-count="10">
+              <div onClick="{{ c.onSelect }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};transition:background .15s">{{ c.label }}</div>
+            </sc-for>
+          </div>
         </div>
-      </div>
-      <div>
-        <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">Percentile in category</div>
-        <div style="height:8px;border-radius:4px;background:{{theme.trackBg}}">
-          <div style="height:100%;width:{{ selectedEntry.eloPct }}%;background:{{ selectedEntry.color }};border-radius:4px"></div>
-        </div>
-      </div>
-      <sc-if value="{{ selectedEntry.hasNote }}" hint-placeholder-val="{{ false }}">
-        <div>
-          <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">Note</div>
-          <div style="font:400 14px/1.5 Inter;color:{{theme.text}}">{{ selectedEntry.note }}</div>
+        <div style="display:flex;gap:10px">
+          <div onClick="{{ selectedEntry.saveEdit }}" style="flex:1;text-align:center;padding:12px;border-radius:8px;background:{{ selectedEntry.saveBg }};color:{{theme.accentText}};font:700 14px Inter;cursor:pointer">Save</div>
+          <div onClick="{{ selectedEntry.cancelEdit }}" style="flex:1;text-align:center;padding:12px;border-radius:8px;border:1px solid {{theme.border}};color:{{theme.textMuted}};font:700 14px Inter;cursor:pointer">Cancel</div>
         </div>
       </sc-if>
     </div>
@@ -490,11 +522,6 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;startingView&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dashboard&quot;, &quot;options&quot;: [&quot;dashboard&quot;, &quot;log&quot;, &quot;h2h&quot;, &quot;rank&quot;, &quot;graph&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;defaultTheme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dark&quot;, &quot;options&quot;: [&quot;dark&quot;, &quot;light&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;eloKFactor&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 32, &quot;min&quot;: 8, &quot;max&quot;: 64, &quot;step&quot;: 4, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;&quot;}, &quot;matchupCooldownHours&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 6, &quot;min&quot;: 0, &quot;max&quot;: 72, &quot;step&quot;: 1, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;h&quot;, &quot;section&quot;: &quot;Head-to-Head&quot;}}">
-function seededRand(seed) {
-  let s = seed;
-  return function() { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
-}
-
 const CATS = [
   { key: 'movies', label: 'Movies', code: 'MV', hue: 0 },
   { key: 'tv', label: 'TV', code: 'TV', hue: 34 },
@@ -507,21 +534,6 @@ const CATS = [
   { key: 'places', label: 'Places', code: 'PL', hue: 272 },
   { key: 'general', label: 'General', code: 'GN', hue: 306 },
 ];
-
-const NAMES = {
-  movies: ['Dune: Part Two', 'Oppenheimer', 'Poor Things', 'Past Lives', 'Anatomy of a Fall', 'Killers of the Flower Moon'],
-  tv: ['Shogun', 'Slow Horses', 'The Last of Us', 'Fargo Y5', 'The Bear S3'],
-  books: ['Project Hail Mary', 'Tomorrow, and Tomorrow, and Tomorrow', 'Atomic Habits', 'Sapiens', 'The Midnight Library'],
-  food: ["Joe's Pizza", "Katz's Deli", 'Local Ramen Spot', 'Home-cooked Pad Thai', 'Taco Truck on 5th', 'Sushi Nakazawa'],
-  workouts: ['5k Morning Run', 'Leg Day', 'Yoga Flow', 'Bench PR Session', 'Hike - Runyon Canyon', 'Spin Class'],
-  sports: ['Sunday Pickup Basketball', '5-a-side Soccer', 'Tennis w/ Alex', 'Bouldering Session', 'Lakers Watch Party'],
-  habits: ['Morning Meditation', 'Cold Shower', 'No-phone Morning', 'Journaling', '8hr Sleep Streak'],
-  products: ['Sony WH-1000XM5', 'Kindle Paperwhite', 'Standing Desk', 'Nespresso Vertuo', 'Patagonia Nano Puff'],
-  places: ['Kyoto', 'Big Sur', 'Marrakech', 'Iceland Ring Road', 'Yosemite'],
-  general: ['Tried stand-up comedy', 'Learned to skateboard', 'Hosted a dinner party', 'Built a bookshelf'],
-};
-
-const NOTES = ['Better than expected.', 'Would do again.', 'A bit overhyped.', 'Genuinely great.', '', '', 'Solid, not amazing.', 'Exceeded expectations.'];
 
 const CATEGORY_GROUP = { movies: 'media', tv: 'media', books: 'media', food: 'food', workouts: 'activity', sports: 'activity', habits: 'habits', places: 'places', products: 'products', general: 'general' };
 const GROUP_LABELS = { media: 'Movies, TV & Books', food: 'Food', activity: 'Workouts & Sports', habits: 'Habits', places: 'Places', products: 'Products', general: 'General' };
@@ -550,39 +562,6 @@ const DIMENSIONS = [
   { key: 'morepeople', label: 'Better With More People', groups: ['general'], question: 'Which is better with more people?' },
   { key: 'multitask', label: 'Multitask-Friendly', groups: ['general'], question: 'Which is easier to do as part of a multitask?' },
 ];
-
-function generateSeedEntries() {
-  const rand = seededRand(42);
-  const entries = [];
-  let id = 1;
-  CATS.forEach((cat) => {
-    NAMES[cat.key].forEach((name) => {
-      const daysAgo = Math.floor(rand() * 85);
-      const d = new Date();
-      d.setDate(d.getDate() - daysAgo);
-      entries.push({
-        id: id++,
-        category: cat.key,
-        name,
-        elo: Math.round(1000 + rand() * 400),
-        date: d.toISOString().slice(0, 10),
-        note: NOTES[Math.floor(rand() * NOTES.length)],
-        parentId: null,
-        games: Math.floor(rand() * 20) + 5,
-      });
-    });
-  });
-
-  // hierarchy example: show > season > episode, all still Elo-ranked independently
-  const dayAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
-  entries.push({ id: id++, category: 'tv', name: 'Succession S4E1 \u2014 The Munsters', elo: 1290, date: dayAgo(55), note: '', parentId: null, games: 8 });
-  entries.push({ id: id++, category: 'tv', name: 'Succession S4E3 \u2014 Connor\u2019s Wedding', elo: 1420, date: dayAgo(50), note: '', parentId: null, games: 8 });
-  entries.push({ id: id++, category: 'tv', name: 'Succession S4E9 \u2014 With Open Eyes', elo: 1380, date: dayAgo(45), note: '', parentId: null, games: 8 });
-  entries.push({ id: id++, category: 'tv', name: 'Succession Season 4', elo: 1360, date: dayAgo(60), note: 'Best season of the show.', parentId: null, games: 8 });
-  entries.push({ id: id++, category: 'tv', name: 'Succession', elo: 1340, date: dayAgo(80), note: 'The whole series, overall take.', parentId: null, games: 8 });
-
-  return entries;
-}
 
 function parseLevel(name) {
   let m = name.match(/^(.*?)\s*[-\u2013\u2014:]*\s*S(\d+)\s*E(\d+)\b/i);
@@ -637,7 +616,7 @@ class Component extends DCLogic {
         const raw = localStorage.getItem('tally-entries');
         if (raw) return JSON.parse(raw);
       } catch (e) {}
-      return generateSeedEntries();
+      return [];
     })(),
     formCategory: 'movies',
     formName: '',
@@ -671,6 +650,10 @@ class Component extends DCLogic {
     minElo: 0,
     filtersOpen: false,
     detailId: null,
+    editingDetail: false,
+    editName: '',
+    editNote: '',
+    editCategory: null,
     dashboardCategory: null,
     dashboardTop10Dim: null,
     comparePairReason: null,
@@ -774,6 +757,36 @@ class Component extends DCLogic {
     this.setState((s) => ({
       customCategories: [...s.customCategories, cat],
       formCategory: key, showNewCategoryInput: false, newCategoryName: '',
+    }));
+  }
+
+  startEditEntry(entry) {
+    this.setState({
+      editingDetail: true,
+      editName: entry.name,
+      editNote: entry.note || '',
+      editCategory: entry.category,
+    });
+  }
+
+  cancelEditEntry() {
+    this.setState({ editingDetail: false, editName: '', editNote: '', editCategory: null });
+  }
+
+  saveEditEntry(id) {
+    const name = this.state.editName.trim();
+    if (!name) return;
+    this.setState((s) => ({
+      entries: s.entries.map((e) => e.id === id ? { ...e, name, note: s.editNote.trim(), category: s.editCategory } : e),
+      editingDetail: false, editName: '', editNote: '', editCategory: null,
+    }));
+  }
+
+  deleteEntry(id) {
+    if (!window.confirm('Delete this entry? This can’t be undone.')) return;
+    this.setState((s) => ({
+      entries: s.entries.filter((e) => e.id !== id),
+      detailId: null, editingDetail: false, editName: '', editNote: '', editCategory: null,
     }));
   }
 
@@ -1074,7 +1087,7 @@ class Component extends DCLogic {
       id: e.id, name: e.name, category: this.catInfo(e.category).label,
       color: this.catColor(e.category, theme), eloDisplay: String(e.elo), dateDisplay: fmtDate(e.date),
       breadcrumb: getBreadcrumb(entries, e), hasBreadcrumb: !!getBreadcrumb(entries, e),
-      onOpen: () => this.setState({ detailId: e.id }),
+      onOpen: () => this.setState({ detailId: e.id, editingDetail: false, editName: "", editNote: "", editCategory: null }),
     }));
 
     const dashboardTitle = dashCat ? `Dashboard \u2014 ${this.catInfo(dashCat).label}` : 'Dashboard';
@@ -1108,7 +1121,7 @@ class Component extends DCLogic {
         id: e.id, rank: i + 1, name: e.name,
         value: top10DimInfo ? this.getDimRating(e, top10Dim).elo : e.elo,
         color: this.catColor(e.category, theme),
-        onOpen: () => this.setState({ detailId: e.id }),
+        onOpen: () => this.setState({ detailId: e.id, editingDetail: false, editName: "", editNote: "", editCategory: null }),
       }));
     const top10Title = top10DimInfo ? `Top 5 \u2014 ${top10DimInfo.label}` : 'Top 5 \u2014 Elo';
 
@@ -1238,7 +1251,7 @@ class Component extends DCLogic {
       barWidthPct: Math.min(100, Math.max(0, ((e.elo - 900) / 600) * 100)),
       showCenterTick: true,
       breadcrumb: getBreadcrumb(entries, e), hasBreadcrumb: !!getBreadcrumb(entries, e),
-      onOpen: () => this.setState({ detailId: e.id }),
+      onOpen: () => this.setState({ detailId: e.id, editingDetail: false, editName: "", editNote: "", editCategory: null }),
     }));
     const activeFilterParts = [];
     if (rankFilterCats.length) activeFilterParts.push(rankFilterCats.map((k) => this.catInfo(k).label).join(', '));
@@ -1321,17 +1334,43 @@ class Component extends DCLogic {
     // ---- Detail ----
     let selectedEntry = null;
     const detailId = this.state.detailId;
+    const isEditingDetail = this.state.editingDetail;
     if (detailId) {
       const e = entries.find((x) => x.id === detailId);
       if (e) {
         const pool = entries.filter((x) => x.category === e.category).sort((a, b) => b.elo - a.elo);
         const rank = pool.findIndex((x) => x.id === e.id) + 1;
+        const editCategoryChips = categories.map((c) => {
+          const active = this.state.editCategory === c.key;
+          const color = this.catColor(c.key, theme);
+          return {
+            key: c.key, label: c.label,
+            onSelect: () => this.setState({ editCategory: c.key }),
+            bg: this.hoverBg(`editcat:${c.key}`, active ? color : 'transparent', color, undefined, active), fg: '#ffffff',
+            border: active ? color : theme.border,
+            ...this.hoverHandlers(`editcat:${c.key}`),
+          };
+        });
         selectedEntry = {
+          id: e.id,
           name: e.name, category: this.catInfo(e.category).label, color: this.catColor(e.category, theme),
           elo: e.elo, rankLabel: `#${rank}`, dateDisplay: fmtDate(e.date),
           eloPct: Math.min(100, Math.max(4, Math.round(((e.elo - 900) / 600) * 100))),
           note: e.note, hasNote: !!e.note,
           breadcrumb: getBreadcrumb(entries, e), hasBreadcrumb: !!getBreadcrumb(entries, e),
+          isEditing: isEditingDetail,
+          isViewing: !isEditingDetail,
+          startEdit: () => this.startEditEntry(e),
+          cancelEdit: () => this.cancelEditEntry(),
+          saveEdit: () => this.saveEditEntry(e.id),
+          requestDelete: () => this.deleteEntry(e.id),
+          editName: this.state.editName,
+          editNote: this.state.editNote,
+          handleEditNameChange: (ev) => this.setState({ editName: ev.target.value }),
+          handleEditNoteChange: (ev) => this.setState({ editNote: ev.target.value }),
+          editCategoryChips,
+          saveDisabled: !this.state.editName.trim(),
+          saveBg: this.state.editName.trim() ? theme.accent : theme.textFaint,
         };
       }
     }
@@ -1420,7 +1459,7 @@ class Component extends DCLogic {
       sortKey: this.state.sortKey, handleSortChange: (e) => this.setState({ sortKey: e.target.value }),
       minElo: this.state.minElo, handleMinEloChange: (e) => this.setState({ minElo: Number(e.target.value) }),
       hasSelectedEntry: !!selectedEntry, selectedEntry,
-      closeDetail: () => this.setState({ detailId: null }),
+      closeDetail: () => this.setState({ detailId: null, editingDetail: false, editName: '', editNote: '', editCategory: null }),
     };
   }
 }
