@@ -691,14 +691,19 @@ class Component extends DCLogic {
     this.rollComparePair(null);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.entries !== this.state.entries) {
+  componentDidUpdate() {
+    // support.js's componentDidUpdate only forwards prevProps, not prevState,
+    // so track previously-saved references ourselves instead of diffing prevState.
+    if (this._savedEntries !== this.state.entries) {
+      this._savedEntries = this.state.entries;
       try { localStorage.setItem('tally-entries', JSON.stringify(this.state.entries)); } catch (e) {}
     }
-    if (prevState.customCategories !== this.state.customCategories) {
+    if (this._savedCustomCategories !== this.state.customCategories) {
+      this._savedCustomCategories = this.state.customCategories;
       try { localStorage.setItem('tally-customCategories', JSON.stringify(this.state.customCategories)); } catch (e) {}
     }
-    if (prevState.matchupHistory !== this.state.matchupHistory) {
+    if (this._savedMatchupHistory !== this.state.matchupHistory) {
+      this._savedMatchupHistory = this.state.matchupHistory;
       try { localStorage.setItem('tally-matchupHistory', JSON.stringify(this.state.matchupHistory)); } catch (e) {}
     }
   }
