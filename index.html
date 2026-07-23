@@ -167,59 +167,105 @@
     </sc-if>
 
     <sc-if value="{{ isLog }}" hint-placeholder-val="{{ false }}">
-      <div style="max-width:640px">
-        <sc-if value="{{ showLogForm }}" hint-placeholder-val="{{ true }}">
-          <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:22px">Log something</div>
-          <div style="background:{{theme.panel}};border:1px solid {{theme.border}};border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:18px">
-            <div>
-              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Category</div>
-              <div style="display:flex;flex-wrap:wrap;gap:8px">
-                <sc-for list="{{ formCategories }}" as="c" hint-placeholder-count="10">
-                  <div onClick="{{ c.onSelect }}" onMouseEnter="{{ c.onHoverIn }}" onMouseLeave="{{ c.onHoverOut }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};transition:background .15s">{{ c.label }}</div>
-                </sc-for>
-                <sc-if value="{{ showNewCategoryInput }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;align-items:center;gap:6px">
-                    <input value="{{ newCategoryName }}" onChange="{{ handleNewCategoryNameChange }}" placeholder="Category name" autoFocus="{{ true }}" style="padding:6px 12px;border-radius:20px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:600 12px Inter;outline:none;width:140px">
-                    <div onClick="{{ addCustomCategory }}" style="padding:7px 12px;border-radius:20px;font:700 12px Inter;cursor:pointer;background:{{theme.accent}};color:{{theme.accentText}}">Add</div>
-                    <div onClick="{{ cancelNewCategory }}" style="padding:7px 10px;border-radius:20px;font:600 12px Inter;cursor:pointer;color:{{theme.textMuted}}">Cancel</div>
+      <div>
+        <div style="display:flex;gap:24px;align-items:flex-start">
+          <div style="max-width:640px;flex:1;min-width:0;position:relative">
+            <div style="filter:{{ formBlurFilter }};pointer-events:{{ formPointerEvents }};transition:filter .25s">
+              <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:22px">Log something</div>
+              <div style="background:{{theme.panel}};border:1px solid {{theme.border}};border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:18px">
+                <div>
+                  <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Category</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    <sc-for list="{{ formCategories }}" as="c" hint-placeholder-count="10">
+                      <div onClick="{{ c.onSelect }}" onMouseEnter="{{ c.onHoverIn }}" onMouseLeave="{{ c.onHoverOut }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};transition:background .15s">{{ c.label }}</div>
+                    </sc-for>
+                    <sc-if value="{{ showNewCategoryInput }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <input value="{{ newCategoryName }}" onChange="{{ handleNewCategoryNameChange }}" placeholder="Category name" autoFocus="{{ true }}" style="padding:6px 12px;border-radius:20px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:600 12px Inter;outline:none;width:140px">
+                        <div onClick="{{ addCustomCategory }}" style="padding:7px 12px;border-radius:20px;font:700 12px Inter;cursor:pointer;background:{{theme.accent}};color:{{theme.accentText}}">Add</div>
+                        <div onClick="{{ cancelNewCategory }}" style="padding:7px 10px;border-radius:20px;font:600 12px Inter;cursor:pointer;color:{{theme.textMuted}}">Cancel</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ showNewCategoryButton }}" hint-placeholder-val="{{ true }}">
+                      <div onClick="{{ openNewCategoryInput }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;border:1px dashed {{theme.border}};color:{{theme.textMuted}}">+ New category</div>
+                    </sc-if>
+                  </div>
+                </div>
+                <div>
+                  <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
+                  <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+                </div>
+
+                <div>
+                  <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Note <span style="text-transform:none;color:{{theme.textFaint}}">(optional)</span></div>
+                  <input value="{{ formNote }}" onChange="{{ handleNoteChange }}" placeholder="Quick thoughts..." style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+                </div>
+                <sc-if value="{{ hasAdvFields }}" hint-placeholder-val="{{ false }}">
+                  <div>
+                    <div onClick="{{ toggleAdvanced }}" style="cursor:pointer;font:600 12px Inter;color:{{theme.textMuted}};display:flex;align-items:center;gap:6px;user-select:none">
+                      <span style="display:inline-block;transition:transform .15s;transform:{{ advancedChevron }}">▸</span> Advanced settings
+                    </div>
+                    <sc-if value="{{ showAdvanced }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+                        <sc-for list="{{ advancedFieldRows }}" as="f" hint-placeholder-count="4">
+                          <div>
+                            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">{{ f.label }}</div>
+                            <input value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 13px Inter;outline:none">
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
                   </div>
                 </sc-if>
-                <sc-if value="{{ showNewCategoryButton }}" hint-placeholder-val="{{ true }}">
-                  <div onClick="{{ openNewCategoryInput }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;border:1px dashed {{theme.border}};color:{{theme.textMuted}}">+ New category</div>
-                </sc-if>
+                <div onClick="{{ submitEntry }}" style="text-align:center;padding:12px;border-radius:8px;background:{{ submitBg }};color:{{theme.accentText}};font:700 14px Inter;cursor:pointer">Add entry — places it in the ranking right here</div>
               </div>
             </div>
-            <div>
-              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
-              <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
-            </div>
 
-            <div>
-              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Note <span style="text-transform:none;color:{{theme.textFaint}}">(optional)</span></div>
-              <input value="{{ formNote }}" onChange="{{ handleNoteChange }}" placeholder="Quick thoughts..." style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
-            </div>
-            <div onClick="{{ submitEntry }}" style="text-align:center;padding:12px;border-radius:8px;background:{{ submitBg }};color:{{theme.accentText}};font:700 14px Inter;cursor:pointer">Add entry — places it in the ranking right here</div>
-          </div>
-        </sc-if>
+            <sc-if value="{{ isPlacingEntry }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px">
+                <div style="width: 100%; max-width: 600px; background: {{theme.filterPanelBg}}; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid {{theme.border}}; border-radius: 16px; padding: 28px; box-shadow: 0px 20px 100px 0px #56555559">
+                  <div style="font:800 20px Inter;letter-spacing:-.3px;margin-bottom:8px;text-align:center">Where does “{{ placementUI.newCard.name }}” rank?</div>
+                  <div style="font:500 13px Inter;color:{{theme.textMuted}};margin-bottom:22px;text-align:center">{{ placementUI.rangeLabel }}</div>
+                  <sc-if value="{{ placementUI.notSettled }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;align-items:center;justify-content:center;gap:16px">
+                      <div onClick="{{ placementUI.newCard.onSelect }}" onMouseEnter="{{ placementUI.newCard.onHoverIn }}" onMouseLeave="{{ placementUI.newCard.onHoverOut }}" style="width:230px;background:{{ placementUI.newCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:24px 18px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.newCard.shadowColor }};transition:background .15s">
+                        <div style="font:600 11px Inter;color:{{theme.textMuted}}">New entry</div>
+                        <div style="font:700 16px Inter">{{ placementUI.newCard.name }}</div>
+                      </div>
+                      <div style="font:700 13px Inter;color:{{theme.textMuted}}">vs</div>
+                      <div onClick="{{ placementUI.oppCard.onSelect }}" onMouseEnter="{{ placementUI.oppCard.onHoverIn }}" onMouseLeave="{{ placementUI.oppCard.onHoverOut }}" style="width:230px;background:{{ placementUI.oppCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:24px 18px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.oppCard.shadowColor }};transition:background .15s">
+                        <div style="font:600 11px Inter;color:{{theme.textMuted}}">Currently ranked</div>
+                        <div style="font:700 16px Inter">{{ placementUI.oppCard.name }}</div>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ placementUI.settled }}" hint-placeholder-val="{{ false }}">
+                    <div style="text-align:center;padding:24px 20px;font:700 18px Inter;color:{{theme.accent}}">Locked in at #{{ placementUI.finalRank }}!</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </div><div style="width: 263px; flex: none; background: {{theme.panel}}; border: 1px solid {{theme.border}}; border-radius: 12px; padding: 16px; box-sizing: border-box; height: 383px">
+            
+            <sc-if value="{{ rankPanel.hasRows }}" hint-placeholder-val="{{ false }}">
+              
+            </sc-if>
+            <sc-if value="{{ rankPanel.empty }}" hint-placeholder-val="{{ true }}">
+              <div style="font:500 12px Inter;color:{{theme.textMuted}};padding:4px 0">No entries yet in this category.</div>
+            </sc-if>
+          <div style="position: relative; height: 361px; width: 217px">
+                <sc-for list="{{ rankPanel.rows }}" as="row" hint-placeholder-count="6">
+                  <div style="position: absolute; top: 33px; left: 0px; height: 36px; transform: {{ row.transform }}; transition: transform .45s cubic-bezier(.22,.8,.25,1),background .2s; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; background: {{ row.bg }}; border: {{ row.border }}; z-index: {{ row.z }}; box-sizing: border-box; width: 228px">
+                    <div style="font:800 12px 'JetBrains Mono',monospace;color:{{ row.rankColor }};width:20px;flex:none">{{ row.rank }}</div>
+                    <div style="font:{{ row.fontWeight }} 12px Inter;color:{{ row.nameColor }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.name }}</div>
+                  </div>
+                </sc-for>
+              <div style="font:700 12px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:12px">{{ rankPanel.title }}</div></div></div>
 
-        <sc-if value="{{ isPlacingEntry }}" hint-placeholder-val="{{ false }}">
-          <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:8px">Where does “{{ placementUI.newCard.name }}” rank?</div>
-          <div style="font:500 13px Inter;color:{{theme.textMuted}};margin-bottom:22px">{{ placementUI.rangeLabel }}</div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:20px">
-            <div onClick="{{ placementUI.newCard.onSelect }}" onMouseEnter="{{ placementUI.newCard.onHoverIn }}" onMouseLeave="{{ placementUI.newCard.onHoverOut }}" style="width:260px;background:{{ placementUI.newCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.newCard.shadowColor }};transition:background .15s">
-              <div style="font:600 11px Inter;color:{{theme.textMuted}}">New entry</div>
-              <div style="font:700 17px Inter">{{ placementUI.newCard.name }}</div>
-            </div>
-            <div style="font:700 13px Inter;color:{{theme.textMuted}}">vs</div>
-            <div onClick="{{ placementUI.oppCard.onSelect }}" onMouseEnter="{{ placementUI.oppCard.onHoverIn }}" onMouseLeave="{{ placementUI.oppCard.onHoverOut }}" style="width:260px;background:{{ placementUI.oppCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.oppCard.shadowColor }};transition:background .15s">
-              <div style="font:600 11px Inter;color:{{theme.textMuted}}">Currently ranked</div>
-              <div style="font:700 17px Inter">{{ placementUI.oppCard.name }}</div>
-              <div style="font:600 12px Inter;color:{{theme.textMuted}}">current: {{ placementUI.oppCard.elo }}</div>
-            </div>
-          </div>
-        </sc-if>
+          
+        </div>
 
-        <div style="margin-top:24px">
+        <div style="max-width: 640px; margin-top: 24px; width: 602px; height: 206px">
           <div style="font:700 13px Inter;margin-bottom:12px;color:{{theme.textMuted}}">Recently added</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ recentLog }}" as="row" hint-placeholder-count="3">
@@ -284,15 +330,12 @@
           </sc-for>
         </div>
 
-        
-        
-
         <sc-if value="{{ showOverallPairArea }}" hint-placeholder-val="{{ true }}">
           <div>
             <div style="text-align:center;font:500 13px Inter;color:{{theme.textMuted}};margin-bottom:18px">Which one wins?</div>
             <sc-if value="{{ hasComparePair }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;gap:20px;justify-content:center;align-items:stretch">
-                <div onClick="{{ voteA }}" onMouseEnter="{{ pairA.onHoverIn }}" onMouseLeave="{{ pairA.onHoverOut }}" style="width:280px;background:{{ pairA.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ pairA.shadowColor }};transition:background .15s">
+              <div style="display:flex;gap:20px;justify-content:center;align-items:stretch;overflow:visible">
+                <div onClick="{{ voteA }}" onMouseEnter="{{ pairA.onHoverIn }}" onMouseLeave="{{ pairA.onHoverOut }}" style="width:280px;background:{{ pairA.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ pairA.shadowColor }};{{ pairA.motion }}">
                   <sc-if value="{{ pairA.provisional }}" hint-placeholder-val="{{ false }}">
                     <div style="font:700 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.accent2}}">Placement match</div>
                   </sc-if>
@@ -301,16 +344,19 @@
                   <div style="font:600 12px Inter;color:{{theme.textMuted}}">current: {{ pairA.elo }}</div>
                 </div>
                 <div style="display:flex;align-items:center;font:800 18px 'JetBrains Mono',monospace;color:{{theme.textFaint}}">VS</div>
-                <div onClick="{{ voteB }}" onMouseEnter="{{ pairB.onHoverIn }}" onMouseLeave="{{ pairB.onHoverOut }}" style="width:280px;background:{{ pairB.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ pairB.shadowColor }};transition:background .15s">
-                  <sc-if value="{{ pairB.provisional }}" hint-placeholder-val="{{ false }}">
-                    <div style="font:700 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.accent2}}">Placement match</div>
-                  </sc-if>
-                  <div style="font:600 11px Inter;color:{{theme.textMuted}}">{{ pairB.category }}</div>
-                  <div style="font:700 17px Inter">{{ pairB.name }}</div>
-                  <div style="font:600 12px Inter;color:{{theme.textMuted}}">current: {{ pairB.elo }}</div>
+                <div style="position:relative;width:280px">
+                  <div style="position:absolute;top:8px;right:-18px;bottom:-8px;left:18px;background:{{theme.panel}};border:2px solid {{theme.border}};border-radius:14px;opacity:.28;transform:scale(.93) rotate(2.5deg);z-index:0;pointer-events:none"></div>
+                  <div style="position:absolute;top:4px;right:-9px;bottom:-4px;left:9px;background:{{theme.panel}};border:2px solid {{theme.border}};border-radius:14px;opacity:.5;transform:scale(.965) rotate(1.2deg);z-index:0;pointer-events:none"></div>
+                  <div onClick="{{ voteB }}" onMouseEnter="{{ pairB.onHoverIn }}" onMouseLeave="{{ pairB.onHoverOut }}" style="position:relative;z-index:1;width:280px;background:{{ pairB.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ pairB.shadowColor }};{{ pairB.motion }}">
+                    <sc-if value="{{ pairB.provisional }}" hint-placeholder-val="{{ false }}">
+                      <div style="font:700 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.accent2}}">Placement match</div>
+                    </sc-if>
+                    <div style="font:600 11px Inter;color:{{theme.textMuted}}">{{ pairB.category }}</div>
+                    <div style="font:700 17px Inter">{{ pairB.name }}</div>
+                    <div style="font:600 12px Inter;color:{{theme.textMuted}}">current: {{ pairB.elo }}</div>
+                  </div>
                 </div>
               </div><div onClick="{{ skipPair }}" style="text-align: center; margin-top: 20px; font: 600 12px Inter; color: {{theme.textMuted}}; cursor: pointer; text-decoration: underline; width: 743px; height: 36px">skip this pair</div>
-              
             </sc-if>
             <sc-if value="{{ noComparePair }}" hint-placeholder-val="{{ false }}">
               <div style="text-align:center;font:500 13px Inter;color:{{theme.textMuted}}">{{ comparePairMessage }}</div>
@@ -326,17 +372,21 @@
             <div style="text-align:center;font:600 11px Inter;color:{{theme.textMuted}};margin-bottom:6px">{{ dimGroupLabel }}</div>
             <div style="text-align:center;font:700 16px Inter;margin-bottom:20px">{{ dimQuestion }}</div>
             <sc-if value="{{ hasDimPair }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;gap:20px;justify-content:center;align-items:stretch">
-                <div onClick="{{ voteDimA }}" onMouseEnter="{{ dimPairA.onHoverIn }}" onMouseLeave="{{ dimPairA.onHoverOut }}" style="width:280px;background:{{ dimPairA.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ dimPairA.shadowColor }};transition:background .15s">
+              <div style="display:flex;gap:20px;justify-content:center;align-items:stretch;overflow:visible">
+                <div onClick="{{ voteDimA }}" onMouseEnter="{{ dimPairA.onHoverIn }}" onMouseLeave="{{ dimPairA.onHoverOut }}" style="width:280px;background:{{ dimPairA.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ dimPairA.shadowColor }};{{ dimPairA.motion }}">
                   <div style="font:600 11px Inter;color:{{theme.textMuted}}">{{ dimPairA.category }}</div>
                   <div style="font:700 17px Inter">{{ dimPairA.name }}</div>
                   <div style="font:600 12px Inter;color:{{theme.textMuted}}">score: {{ dimPairA.elo }}/100</div>
                 </div>
                 <div style="display:flex;align-items:center;font:800 18px 'JetBrains Mono',monospace;color:{{theme.textFaint}}">VS</div>
-                <div onClick="{{ voteDimB }}" onMouseEnter="{{ dimPairB.onHoverIn }}" onMouseLeave="{{ dimPairB.onHoverOut }}" style="width:280px;background:{{ dimPairB.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ dimPairB.shadowColor }};transition:background .15s">
-                  <div style="font:600 11px Inter;color:{{theme.textMuted}}">{{ dimPairB.category }}</div>
-                  <div style="font:700 17px Inter">{{ dimPairB.name }}</div>
-                  <div style="font:600 12px Inter;color:{{theme.textMuted}}">score: {{ dimPairB.elo }}/100</div>
+                <div style="position:relative;width:280px">
+                  <div style="position:absolute;top:8px;right:-18px;bottom:-8px;left:18px;background:{{theme.panel}};border:2px solid {{theme.border}};border-radius:14px;opacity:.28;transform:scale(.93) rotate(2.5deg);z-index:0;pointer-events:none"></div>
+                  <div style="position:absolute;top:4px;right:-9px;bottom:-4px;left:9px;background:{{theme.panel}};border:2px solid {{theme.border}};border-radius:14px;opacity:.5;transform:scale(.965) rotate(1.2deg);z-index:0;pointer-events:none"></div>
+                  <div onClick="{{ voteDimB }}" onMouseEnter="{{ dimPairB.onHoverIn }}" onMouseLeave="{{ dimPairB.onHoverOut }}" style="position:relative;z-index:1;width:280px;background:{{ dimPairB.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ dimPairB.shadowColor }};{{ dimPairB.motion }}">
+                    <div style="font:600 11px Inter;color:{{theme.textMuted}}">{{ dimPairB.category }}</div>
+                    <div style="font:700 17px Inter">{{ dimPairB.name }}</div>
+                    <div style="font:600 12px Inter;color:{{theme.textMuted}}">score: {{ dimPairB.elo }}/100</div>
+                  </div>
                 </div>
               </div>
               <div onClick="{{ skipDimPair }}" style="text-align:center;margin-top:20px;font:600 12px Inter;color:{{theme.textMuted}};cursor:pointer;text-decoration:underline">skip this pair</div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -510,6 +560,18 @@
             <div style="font:400 14px/1.5 Inter;color:{{theme.text}}">{{ selectedEntry.note }}</div>
           </div>
         </sc-if>
+        <sc-if value="{{ selectedEntry.hasMeta }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">Details</div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ selectedEntry.metaRows }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;font:500 13px Inter">
+                  <span style="color:{{theme.textMuted}}">{{ m.label }}</span><span>{{ m.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
       </sc-if>
 
       <sc-if value="{{ selectedEntry.isEditing }}" hint-placeholder-val="{{ false }}">
@@ -541,21 +603,6 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;startingView&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dashboard&quot;, &quot;options&quot;: [&quot;dashboard&quot;, &quot;log&quot;, &quot;h2h&quot;, &quot;rank&quot;, &quot;graph&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;defaultTheme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dark&quot;, &quot;options&quot;: [&quot;dark&quot;, &quot;light&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;eloKFactor&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 32, &quot;min&quot;: 8, &quot;max&quot;: 64, &quot;step&quot;: 4, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;&quot;}, &quot;matchupCooldownHours&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 6, &quot;min&quot;: 0, &quot;max&quot;: 72, &quot;step&quot;: 1, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;h&quot;, &quot;section&quot;: &quot;Head-to-Head&quot;}}">
-// One-time wipe of any sample/seed data saved to localStorage by earlier
-// builds of this app (before seeding was removed). Bumping DATA_VERSION
-// forces every browser to clear stale seed data exactly once.
-(function wipeStaleSeedData() {
-  try {
-    var DATA_VERSION = '2';
-    if (localStorage.getItem('tally-dataVersion') !== DATA_VERSION) {
-      localStorage.removeItem('tally-entries');
-      localStorage.removeItem('tally-customCategories');
-      localStorage.removeItem('tally-matchupHistory');
-      localStorage.setItem('tally-dataVersion', DATA_VERSION);
-    }
-  } catch (e) {}
-})();
-
 const CATS = [
   { key: 'movies', label: 'Movies', code: 'MV', hue: 0 },
   { key: 'tv', label: 'TV', code: 'TV', hue: 34 },
@@ -570,6 +617,16 @@ const CATS = [
 ];
 
 const CATEGORY_GROUP = { movies: 'media', tv: 'media', books: 'media', food: 'food', workouts: 'activity', sports: 'activity', habits: 'habits', places: 'places', products: 'products', general: 'general' };
+const FIELD_DEFS = {
+  movies: [{ key: 'director', label: 'Director' }, { key: 'lead1', label: 'Lead 1' }, { key: 'lead2', label: 'Lead 2' }, { key: 'year', label: 'Year' }, { key: 'length', label: 'Length' }],
+  tv: [{ key: 'episodes', label: 'Episodes' }, { key: 'network', label: 'Network' }],
+  books: [{ key: 'author', label: 'Author' }, { key: 'pages', label: 'Pages' }, { key: 'genre', label: 'Genre' }],
+  food: [{ key: 'price', label: 'Price' }, { key: 'calories', label: 'Calories' }],
+  workouts: [{ key: 'targetArea', label: 'Target Area' }],
+  sports: [{ key: 'wins', label: 'Wins' }, { key: 'losses', label: 'Losses' }, { key: 'profit', label: 'Profit' }],
+  products: [{ key: 'price', label: 'Price' }, { key: 'whereBought', label: 'Where Bought' }],
+  places: [{ key: 'timeSpent', label: 'Time Spent' }, { key: 'country', label: 'Country' }, { key: 'city', label: 'City' }, { key: 'state', label: 'State' }],
+};
 const GROUP_LABELS = { media: 'Movies, TV & Books', food: 'Food', activity: 'Workouts & Sports', habits: 'Habits', places: 'Places', products: 'Products', general: 'General' };
 const DIMENSIONS = [
   { key: 'funny', label: 'Funny', groups: ['media'], question: 'Which is funnier?' },
@@ -656,6 +713,8 @@ class Component extends DCLogic {
     formName: '',
     formNote: '',
     formParentId: null,
+    showAdvanced: false,
+    advFields: {},
     customCategories: (() => {
       try {
         const raw = localStorage.getItem('tally-customCategories');
@@ -701,15 +760,72 @@ class Component extends DCLogic {
     graphXMetric: 'elo',
     graphYMetric: 'games',
     graphCategories: [],
+    matchAnim: null,
   };
 
   componentDidMount() {
     this.rollComparePair();
   }
 
+  componentWillUnmount() {
+    this.clearMatchAnimTimers();
+    this.clearPlacementTimer();
+  }
+
+  clearMatchAnimTimers() {
+    (this._matchAnimTimers || []).forEach((t) => clearTimeout(t));
+    this._matchAnimTimers = [];
+  }
+
+  cardMotion(side) {
+    const a = this.state.matchAnim;
+    if (!a) return 'transform:none;opacity:1;transition:transform .4s cubic-bezier(.22,.8,.25,1),opacity .35s';
+    if (a.stage === 'exit') {
+      const isLoser = side === a.loserSide;
+      if (isLoser) {
+        return a.knockout
+          ? 'transform:translateX(-180px) rotate(-16deg) scale(.8);opacity:0;transition:transform .42s cubic-bezier(.6,-.3,.7,.2),opacity .38s ease-in'
+          : 'transform:translateX(90px) scale(.92);opacity:0;transition:transform .38s ease-in,opacity .38s ease-in';
+      }
+      return 'transform:translateX(-14px) scale(.97);opacity:0;transition:transform .32s ease-in,opacity .32s ease-in';
+    }
+    if (a.stage === 'enter-start') return 'transform:translateX(180px);opacity:0;transition:none';
+    if (a.stage === 'enter') return 'transform:translateX(0);opacity:1;transition:transform .5s cubic-bezier(.2,.85,.25,1),opacity .4s ease-out';
+    return 'transform:none;opacity:1;transition:transform .4s,opacity .3s';
+  }
+
+  runMatchAnim(onCommit) {
+    this.clearMatchAnimTimers();
+    this._matchAnimTimers.push(setTimeout(() => {
+      onCommit();
+      this.setState({ matchAnim: { stage: 'enter-start' } });
+      this._matchAnimTimers.push(setTimeout(() => {
+        this.setState({ matchAnim: { stage: 'enter' } });
+        this._matchAnimTimers.push(setTimeout(() => this.setState({ matchAnim: null }), 520));
+      }, 30));
+    }, 430));
+  }
+
+  animatedVote(side) {
+    if (this.state.matchAnim || !this.state.comparePairIds) return;
+    const [idA, idB] = this.state.comparePairIds;
+    const winnerId = side === 'A' ? idA : idB;
+    const loserId = side === 'A' ? idB : idA;
+    this.setState({ matchAnim: { stage: 'exit', loserSide: side === 'A' ? 'B' : 'A', knockout: side === 'B' } });
+    this.runMatchAnim(() => this.vote(winnerId, loserId));
+  }
+
+  animatedVoteDim(side) {
+    if (this.state.matchAnim || !this.state.dimComparePairIds) return;
+    const [idA, idB] = this.state.dimComparePairIds;
+    const winnerId = side === 'A' ? idA : idB;
+    const loserId = side === 'A' ? idB : idA;
+    const dimKey = this.state.activeDim;
+    this.setState({ matchAnim: { stage: 'exit', loserSide: side === 'A' ? 'B' : 'A', knockout: side === 'B' } });
+    this.runMatchAnim(() => this.voteDim(winnerId, loserId, dimKey));
+  }
+
   componentDidUpdate() {
-    // support.js's componentDidUpdate only forwards prevProps, not prevState,
-    // so track previously-saved references ourselves instead of diffing prevState.
     if (this._savedEntries !== this.state.entries) {
       this._savedEntries = this.state.entries;
       try { localStorage.setItem('tally-entries', JSON.stringify(this.state.entries)); } catch (e) {}
@@ -817,6 +933,7 @@ class Component extends DCLogic {
 
   deleteEntry(id) {
     if (!window.confirm('Delete this entry? This can’t be undone.')) return;
+    this.clearPlacementTimer();
     this.setState((s) => ({
       entries: s.entries.filter((e) => e.id !== id),
       detailId: null, editingDetail: false, editName: '', editNote: '', editCategory: null,
@@ -857,24 +974,26 @@ class Component extends DCLogic {
     this.setState({ comparePairIds: chosen, comparePairReason: null });
   }
 
-  // ---- New-entry placement: binary search against the category's current
-  // ranking (not random Elo matchups). First comparison is against the
-  // current #1, second (if needed) against the current last place, then any
-  // remaining comparisons bisect the interior until the exact slot is found.
   placementMidIndex(p) {
     if (p.step === 0) return p.lo;
     if (p.step === 1) return p.hi - 1;
     return Math.floor((p.lo + p.hi) / 2);
   }
 
+  clearPlacementTimer() {
+    if (this._placementTimer) { clearTimeout(this._placementTimer); this._placementTimer = null; }
+  }
+
   votePlacement(entryWon) {
     const p = this.state.placement;
-    if (!p) return;
+    if (!p || p.settled) return;
     const mid = this.placementMidIndex(p);
     const lo = entryWon ? p.lo : mid + 1;
     const hi = entryWon ? mid : p.hi;
     if (lo >= hi) {
-      this.finishPlacement(p, lo);
+      this.clearPlacementTimer();
+      this.setState({ placement: { ...p, lo, hi, settled: true, finalIdx: lo } });
+      this._placementTimer = setTimeout(() => { this.finishPlacement(p, lo); }, 2600);
     } else {
       this.setState({ placement: { ...p, lo, hi, step: p.step + 1 } });
     }
@@ -940,7 +1059,8 @@ class Component extends DCLogic {
   }
 
   selectH2HCategory(key) {
-    this.setState({ h2hCategory: key, chainMode: false }, () => {
+    this.clearMatchAnimTimers();
+    this.setState({ h2hCategory: key, chainMode: false, matchAnim: null }, () => {
       const dim = this.state.activeDim ? DIMENSIONS.find((d) => d.key === this.state.activeDim) : null;
       if (dim && key && !dim.groups.includes(CATEGORY_GROUP[key])) {
         this.setState({ activeDim: null }, () => this.rollComparePair());
@@ -953,10 +1073,13 @@ class Component extends DCLogic {
   }
 
   selectDim(key) {
-    this.setState({ activeDim: key, chainMode: false }, () => this.rollDimPair(key, this.state.h2hCategory));
+    this.clearMatchAnimTimers();
+    this.setState({ activeDim: key, chainMode: false, matchAnim: null }, () => this.rollDimPair(key, this.state.h2hCategory));
   }
 
   startChain() {
+    this.clearMatchAnimTimers();
+    this.setState({ matchAnim: null });
     const catFilter = this.state.h2hCategory;
     const dims = this.shuffleArr(this.availableDims(catFilter));
     for (const dim of dims) {
@@ -1066,7 +1189,6 @@ class Component extends DCLogic {
 
     const entries = withAutoHierarchy(this.state.entries);
 
-    // ---- Dashboard ----
     const dashCat = this.state.dashboardCategory;
     const dashEntries = dashCat ? entries.filter((e) => e.category === dashCat) : entries;
     const totalEntries = dashEntries.length;
@@ -1162,7 +1284,6 @@ class Component extends DCLogic {
       }));
     const top10Title = top10DimInfo ? `Top 5 \u2014 ${top10DimInfo.label}` : 'Top 5 \u2014 Elo';
 
-    // ---- Graph ----
     const metricOptions = [
       { key: 'elo', label: 'Elo Rating' },
       { key: 'games', label: 'Games Played' },
@@ -1216,42 +1337,90 @@ class Component extends DCLogic {
     });
     const fmtBound = (key, val) => key === 'date' ? fmtDate(new Date(val).toISOString().slice(0, 10)) : String(Math.round(val));
 
-    // ---- Log ----
     const formCategories = categories.map((c) => {
       const active = this.state.formCategory === c.key;
       const color = this.catColor(c.key, theme);
       return {
         key: c.key, label: c.label,
-        onSelect: () => this.setState({ formCategory: c.key }),
+        onSelect: () => this.setState({ formCategory: c.key, advFields: {}, showAdvanced: false }),
         bg: this.hoverBg(`form:${c.key}`, active ? color : 'transparent', color, undefined, active), fg: '#ffffff',
         border: active ? color : theme.border,
         ...this.hoverHandlers(`form:${c.key}`),
       };
     });
     const recentLog = this.state.recentLog.map((e) => ({ name: e.name, category: this.catInfo(e.category).label }));
+    const advFieldDefs = FIELD_DEFS[this.state.formCategory] || [];
+    const hasAdvFields = advFieldDefs.length > 0;
+    const advancedFieldRows = advFieldDefs.map((f) => ({
+      key: f.key, label: f.label,
+      value: this.state.advFields[f.key] || '',
+      onChange: (ev) => this.setState((s) => ({ advFields: { ...s.advFields, [f.key]: ev.target.value } })),
+    }));
+    const formBlurFilter = this.state.placement ? 'blur(6px) saturate(60%)' : 'none';
+    const formPointerEvents = this.state.placement ? 'none' : 'auto';
 
     let placementUI = null;
     if (this.state.placement) {
       const p = this.state.placement;
       const newE = entries.find((e) => e.id === p.entryId);
+      const settled = !!p.settled;
       const midIdx = this.placementMidIndex(p);
-      const opp = entries.find((e) => e.id === p.order[midIdx]);
+      const opp = !settled ? entries.find((e) => e.id === p.order[midIdx]) : null;
       const color = this.catColor(p.category, theme);
-      if (newE && opp) {
+      if (newE && (settled || opp)) {
         const remaining = p.hi - p.lo;
         const shadowColor = this.colorWithAlpha(color, 0.2);
+        const insertIndex = settled ? p.finalIdx : midIdx;
+        const ROW_H = 40;
+        const rankedList = p.order.map((id, i) => {
+          const e = entries.find((x) => x.id === id);
+          const disp = i < insertIndex ? i : i + 1;
+          return {
+            id, name: e ? e.name : '', rank: disp + 1,
+            transform: `translateY(${disp * ROW_H}px)`,
+            bg: theme.hoverBg, border: `1px solid ${theme.border}`,
+            rankColor: theme.textMuted, nameColor: theme.text, fontWeight: 600, z: 1,
+          };
+        });
+        rankedList.push({
+          id: newE.id, name: newE.name, rank: insertIndex + 1,
+          transform: `translateY(${insertIndex * ROW_H}px)`,
+          bg: this.colorWithAlpha(color, 0.22), border: `2px solid ${color}`,
+          rankColor: color, nameColor: theme.text, fontWeight: 800, z: 2,
+        });
         placementUI = {
           categoryLabel: this.catInfo(p.category).label,
-          rangeLabel: `Placing against ${p.order.length} ranked ${p.order.length === 1 ? 'entry' : 'entries'} in ${this.catInfo(p.category).label}${remaining > 1 ? ` — ${remaining} left to narrow down` : ''}`,
+          settled, notSettled: !settled,
+          finalRank: insertIndex + 1,
+          rangeLabel: settled ? 'Locking in position…' : `Placing against ${p.order.length} ranked ${p.order.length === 1 ? 'entry' : 'entries'} in ${this.catInfo(p.category).label}${remaining > 1 ? ` — ${remaining} left to narrow down` : ''}`,
           newCard: { name: newE.name, bg: this.hoverBg('placeNew', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(true), ...this.hoverHandlers('placeNew') },
-          oppCard: { name: opp.name, elo: opp.elo, bg: this.hoverBg('placeOpp', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(false), ...this.hoverHandlers('placeOpp') },
+          oppCard: opp ? { name: opp.name, elo: opp.elo, bg: this.hoverBg('placeOpp', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(false), ...this.hoverHandlers('placeOpp') } : null,
+          rankedList,
+          rankedListHeightPx: `${(p.order.length + 1) * ROW_H}px`,
         };
       }
-      // if the opponent or the entry itself vanished (e.g. deleted mid-placement),
-      // placementUI stays null this render; deleteEntry() clears state.placement directly.
     }
 
-    // ---- Rank ----
+    const RANK_ROW_H = 40;
+    let rankPanel;
+    if (placementUI) {
+      rankPanel = { title: `${placementUI.categoryLabel} ranking`, rows: placementUI.rankedList, heightPx: placementUI.rankedListHeightPx, hasRows: true, empty: false };
+    } else {
+      const panelCat = this.state.formCategory;
+      const catEntries = entries.filter((e) => e.category === panelCat).sort((a, b) => b.elo - a.elo);
+      rankPanel = {
+        title: `${this.catInfo(panelCat).label} ranking`,
+        rows: catEntries.map((e, i) => ({
+          id: e.id, name: e.name, rank: i + 1,
+          transform: `translateY(${i * RANK_ROW_H}px)`,
+          bg: 'transparent', border: `1px solid ${theme.border}`,
+          rankColor: theme.textMuted, nameColor: theme.text, fontWeight: 600, z: 1,
+        })),
+        heightPx: `${catEntries.length * RANK_ROW_H}px`,
+        hasRows: catEntries.length > 0, empty: catEntries.length === 0,
+      };
+    }
+
     const rankFilterCats = this.state.rankFilterCategories;
     const leaderboardDim = this.state.leaderboardDim;
     const leaderboardDimInfo = leaderboardDim ? DIMENSIONS.find((d) => d.key === leaderboardDim) : null;
@@ -1325,11 +1494,10 @@ class Component extends DCLogic {
       const ea = entries.find((e) => e.id === ida);
       const eb = entries.find((e) => e.id === idb);
       const eaColor = this.catColor(ea.category, theme), ebColor = this.catColor(eb.category, theme);
-      pairA = { name: ea.name, elo: ea.elo, provisional: (ea.games || 0) < 5, category: this.catInfo(ea.category).label, color: eaColor, shadowColor: this.colorWithAlpha(eaColor, 0.2), bg: this.hoverBg('pairA', theme.panel, eaColor, 0.16), ...this.hoverHandlers('pairA') };
-      pairB = { name: eb.name, elo: eb.elo, provisional: (eb.games || 0) < 5, category: this.catInfo(eb.category).label, color: ebColor, shadowColor: this.colorWithAlpha(ebColor, 0.2), bg: this.hoverBg('pairB', theme.panel, ebColor, 0.16), ...this.hoverHandlers('pairB') };
+      pairA = { name: ea.name, elo: ea.elo, provisional: (ea.games || 0) < 5, category: this.catInfo(ea.category).label, color: eaColor, shadowColor: this.colorWithAlpha(eaColor, 0.2), bg: this.hoverBg('pairA', theme.panel, eaColor, 0.16), motion: this.cardMotion('A'), ...this.hoverHandlers('pairA') };
+      pairB = { name: eb.name, elo: eb.elo, provisional: (eb.games || 0) < 5, category: this.catInfo(eb.category).label, color: ebColor, shadowColor: this.colorWithAlpha(ebColor, 0.2), bg: this.hoverBg('pairB', theme.panel, ebColor, 0.16), motion: this.cardMotion('B'), ...this.hoverHandlers('pairB') };
     }
 
-    // ---- Dimension H2H ----
     const activeDim = this.state.activeDim;
     const isDimMode = !!activeDim;
     const notDimMode = !isDimMode;
@@ -1382,14 +1550,13 @@ class Component extends DCLogic {
         hasDimPair = true;
         const ra = this.getDimRating(ea, activeDim), rb = this.getDimRating(eb, activeDim);
         const eaColor = this.catColor(ea.category, theme), ebColor = this.catColor(eb.category, theme);
-        dimPairA = { name: ea.name, category: this.catInfo(ea.category).label, elo: ra.elo, shadowColor: this.colorWithAlpha(eaColor, 0.2), bg: this.hoverBg('dimPairA', theme.panel, eaColor, 0.16), ...this.hoverHandlers('dimPairA') };
-        dimPairB = { name: eb.name, category: this.catInfo(eb.category).label, elo: rb.elo, shadowColor: this.colorWithAlpha(ebColor, 0.2), bg: this.hoverBg('dimPairB', theme.panel, ebColor, 0.16), ...this.hoverHandlers('dimPairB') };
+        dimPairA = { name: ea.name, category: this.catInfo(ea.category).label, elo: ra.elo, shadowColor: this.colorWithAlpha(eaColor, 0.2), bg: this.hoverBg('dimPairA', theme.panel, eaColor, 0.16), motion: this.cardMotion('A'), ...this.hoverHandlers('dimPairA') };
+        dimPairB = { name: eb.name, category: this.catInfo(eb.category).label, elo: rb.elo, shadowColor: this.colorWithAlpha(ebColor, 0.2), bg: this.hoverBg('dimPairB', theme.panel, ebColor, 0.16), motion: this.cardMotion('B'), ...this.hoverHandlers('dimPairB') };
       }
     }
     const noDimPair = isDimMode && !hasDimPair;
     const dimGroupLabel = currentDim ? currentDim.groups.map((g) => GROUP_LABELS[g]).join(' + ') : '';
 
-    // ---- Detail ----
     let selectedEntry = null;
     const detailId = this.state.detailId;
     const isEditingDetail = this.state.editingDetail;
@@ -1409,12 +1576,15 @@ class Component extends DCLogic {
             ...this.hoverHandlers(`editcat:${c.key}`),
           };
         });
+        const metaDefs = FIELD_DEFS[e.category] || [];
+        const metaRows = e.meta ? metaDefs.filter((f) => e.meta[f.key]).map((f) => ({ label: f.label, value: e.meta[f.key] })) : [];
         selectedEntry = {
           id: e.id,
           name: e.name, category: this.catInfo(e.category).label, color: this.catColor(e.category, theme),
           elo: e.elo, rankLabel: `#${rank}`, dateDisplay: fmtDate(e.date),
           eloPct: Math.min(100, Math.max(4, Math.round(((e.elo - 900) / 600) * 100))),
           note: e.note, hasNote: !!e.note,
+          metaRows, hasMeta: metaRows.length > 0,
           breadcrumb: getBreadcrumb(entries, e), hasBreadcrumb: !!getBreadcrumb(entries, e),
           isEditing: isEditingDetail,
           isViewing: !isEditingDetail,
@@ -1466,18 +1636,25 @@ class Component extends DCLogic {
       submitBg: this.state.formName.trim() ? theme.accent : theme.textFaint,
       submitEntry: () => {
         if (!this.state.formName.trim()) return;
+        this.clearPlacementTimer();
         const category = this.state.formCategory;
-        const newEntry = { id: Date.now(), category, name: this.state.formName.trim(), elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0 };
+        const meta = {};
+        advFieldDefs.forEach((f) => { const v = (this.state.advFields[f.key] || '').trim(); if (v) meta[f.key] = v; });
+        const newEntry = { id: Date.now(), category, name: this.state.formName.trim(), elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0, meta: Object.keys(meta).length ? meta : undefined };
         const order = this.state.entries.filter((e) => e.category === category).sort((a, b) => b.elo - a.elo).map((e) => e.id);
         this.setState((s) => ({
           entries: [...s.entries, newEntry],
           recentLog: [newEntry, ...s.recentLog].slice(0, 5),
-          formName: '', formNote: '', rankCategory: category,
+          formName: '', formNote: '', rankCategory: category, advFields: {}, showAdvanced: false,
           placement: order.length ? { entryId: newEntry.id, category, order, lo: 0, hi: order.length, step: 0 } : null,
         }));
       },
-      recentLog,
+      recentLog, hasAdvFields, advancedFieldRows,
+      showAdvanced: this.state.showAdvanced,
+      toggleAdvanced: () => this.setState((s) => ({ showAdvanced: !s.showAdvanced })),
+      advancedChevron: this.state.showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)',
       isPlacingEntry: !!placementUI, showLogForm: !placementUI, placementUI,
+      formBlurFilter, formPointerEvents, rankPanel,
       leaderboardColLabel: leaderboardDimInfo ? leaderboardDimInfo.label : 'Elo',
       leaderboardColLabelIfDim: leaderboardDimInfo ? leaderboardDimInfo.label : '',
       openFilters: () => this.setState({ filtersOpen: true }),
@@ -1502,7 +1679,7 @@ class Component extends DCLogic {
       startChain: () => this.startChain(),
       chainButtonBg: chainMode ? theme.accent2 : 'transparent',
       chainButtonFg: chainMode ? theme.accentText : theme.accent2,
-      selectOverallDim: () => this.setState({ activeDim: null, chainMode: false }, () => this.rollComparePair()),
+      selectOverallDim: () => { this.clearMatchAnimTimers(); this.setState({ activeDim: null, chainMode: false, matchAnim: null }, () => this.rollComparePair()); },
       overallDimBg: notDimMode ? theme.text : 'transparent',
       overallDimFg: notDimMode ? theme.bg : theme.textMuted,
       isDimMode, notDimMode,
@@ -1512,13 +1689,13 @@ class Component extends DCLogic {
       hasDimPair, noDimPair, dimPairA, dimPairB,
       comparePairMessage: this.state.comparePairReason === 'cooldown' ? 'No more potential matchups right now \u2014 check back later.' : 'Not enough entries to compare yet.',
       dimPairMessage: this.state.dimPairReason === 'cooldown' ? 'No more potential matchups right now \u2014 check back later.' : 'Not enough entries share this dimension yet.',
-      voteDimA: () => hasDimPair && this.voteDim(this.state.dimComparePairIds[0], this.state.dimComparePairIds[1], activeDim),
-      voteDimB: () => hasDimPair && this.voteDim(this.state.dimComparePairIds[1], this.state.dimComparePairIds[0], activeDim),
-      skipDimPair: () => this.rollDimPair(activeDim, h2hCategory),
+      voteDimA: () => hasDimPair && this.animatedVoteDim('A'),
+      voteDimB: () => hasDimPair && this.animatedVoteDim('B'),
+      skipDimPair: () => { this.clearMatchAnimTimers(); this.setState({ matchAnim: null }); this.rollDimPair(activeDim, h2hCategory); },
       leaderboard, hasComparePair, noComparePair: !hasComparePair, pairA, pairB, compareColor,
-      voteA: () => hasComparePair && this.vote(this.state.comparePairIds[0], this.state.comparePairIds[1]),
-      voteB: () => hasComparePair && this.vote(this.state.comparePairIds[1], this.state.comparePairIds[0]),
-      skipPair: () => this.rollComparePair(),
+      voteA: () => hasComparePair && this.animatedVote('A'),
+      voteB: () => hasComparePair && this.animatedVote('B'),
+      skipPair: () => { this.clearMatchAnimTimers(); this.setState({ matchAnim: null }); this.rollComparePair(); },
       searchText: this.state.searchText,
       handleSearchChange: (e) => this.setState({ searchText: e.target.value }),
       sortKey: this.state.sortKey, handleSortChange: (e) => this.setState({ sortKey: e.target.value }),
@@ -1528,7 +1705,6 @@ class Component extends DCLogic {
     };
   }
 }
-
 </script>
 </body>
 </html>
