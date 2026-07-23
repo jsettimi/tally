@@ -168,37 +168,56 @@
 
     <sc-if value="{{ isLog }}" hint-placeholder-val="{{ false }}">
       <div style="max-width:640px">
-        <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:22px">Log something</div>
-        <div style="background:{{theme.panel}};border:1px solid {{theme.border}};border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:18px">
-          <div>
-            <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Category</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px">
-              <sc-for list="{{ formCategories }}" as="c" hint-placeholder-count="10">
-                <div onClick="{{ c.onSelect }}" onMouseEnter="{{ c.onHoverIn }}" onMouseLeave="{{ c.onHoverOut }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};transition:background .15s">{{ c.label }}</div>
-              </sc-for>
-              <sc-if value="{{ showNewCategoryInput }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:6px">
-                  <input value="{{ newCategoryName }}" onChange="{{ handleNewCategoryNameChange }}" placeholder="Category name" autoFocus="{{ true }}" style="padding:6px 12px;border-radius:20px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:600 12px Inter;outline:none;width:140px">
-                  <div onClick="{{ addCustomCategory }}" style="padding:7px 12px;border-radius:20px;font:700 12px Inter;cursor:pointer;background:{{theme.accent}};color:{{theme.accentText}}">Add</div>
-                  <div onClick="{{ cancelNewCategory }}" style="padding:7px 10px;border-radius:20px;font:600 12px Inter;cursor:pointer;color:{{theme.textMuted}}">Cancel</div>
-                </div>
-              </sc-if>
-              <sc-if value="{{ showNewCategoryButton }}" hint-placeholder-val="{{ true }}">
-                <div onClick="{{ openNewCategoryInput }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;border:1px dashed {{theme.border}};color:{{theme.textMuted}}">+ New category</div>
-              </sc-if>
+        <sc-if value="{{ showLogForm }}" hint-placeholder-val="{{ true }}">
+          <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:22px">Log something</div>
+          <div style="background:{{theme.panel}};border:1px solid {{theme.border}};border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:18px">
+            <div>
+              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Category</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ formCategories }}" as="c" hint-placeholder-count="10">
+                  <div onClick="{{ c.onSelect }}" onMouseEnter="{{ c.onHoverIn }}" onMouseLeave="{{ c.onHoverOut }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.border }};transition:background .15s">{{ c.label }}</div>
+                </sc-for>
+                <sc-if value="{{ showNewCategoryInput }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <input value="{{ newCategoryName }}" onChange="{{ handleNewCategoryNameChange }}" placeholder="Category name" autoFocus="{{ true }}" style="padding:6px 12px;border-radius:20px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:600 12px Inter;outline:none;width:140px">
+                    <div onClick="{{ addCustomCategory }}" style="padding:7px 12px;border-radius:20px;font:700 12px Inter;cursor:pointer;background:{{theme.accent}};color:{{theme.accentText}}">Add</div>
+                    <div onClick="{{ cancelNewCategory }}" style="padding:7px 10px;border-radius:20px;font:600 12px Inter;cursor:pointer;color:{{theme.textMuted}}">Cancel</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ showNewCategoryButton }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ openNewCategoryInput }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;border:1px dashed {{theme.border}};color:{{theme.textMuted}}">+ New category</div>
+                </sc-if>
+              </div>
+            </div>
+            <div>
+              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
+              <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+            </div>
+
+            <div>
+              <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Note <span style="text-transform:none;color:{{theme.textFaint}}">(optional)</span></div>
+              <input value="{{ formNote }}" onChange="{{ handleNoteChange }}" placeholder="Quick thoughts..." style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+            </div>
+            <div onClick="{{ submitEntry }}" style="text-align:center;padding:12px;border-radius:8px;background:{{ submitBg }};color:{{theme.accentText}};font:700 14px Inter;cursor:pointer">Add entry — places it in the ranking right here</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPlacingEntry }}" hint-placeholder-val="{{ false }}">
+          <div style="font:800 24px Inter;letter-spacing:-.3px;margin-bottom:8px">Where does “{{ placementUI.newCard.name }}” rank?</div>
+          <div style="font:500 13px Inter;color:{{theme.textMuted}};margin-bottom:22px">{{ placementUI.rangeLabel }}</div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:20px">
+            <div onClick="{{ placementUI.newCard.onSelect }}" onMouseEnter="{{ placementUI.newCard.onHoverIn }}" onMouseLeave="{{ placementUI.newCard.onHoverOut }}" style="width:260px;background:{{ placementUI.newCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.newCard.shadowColor }};transition:background .15s">
+              <div style="font:600 11px Inter;color:{{theme.textMuted}}">New entry</div>
+              <div style="font:700 17px Inter">{{ placementUI.newCard.name }}</div>
+            </div>
+            <div style="font:700 13px Inter;color:{{theme.textMuted}}">vs</div>
+            <div onClick="{{ placementUI.oppCard.onSelect }}" onMouseEnter="{{ placementUI.oppCard.onHoverIn }}" onMouseLeave="{{ placementUI.oppCard.onHoverOut }}" style="width:260px;background:{{ placementUI.oppCard.bg }};border:2px solid {{theme.border}};border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:10px;justify-content:center;box-shadow:0 6px 14px -8px {{ placementUI.oppCard.shadowColor }};transition:background .15s">
+              <div style="font:600 11px Inter;color:{{theme.textMuted}}">Currently ranked</div>
+              <div style="font:700 17px Inter">{{ placementUI.oppCard.name }}</div>
+              <div style="font:600 12px Inter;color:{{theme.textMuted}}">current: {{ placementUI.oppCard.elo }}</div>
             </div>
           </div>
-          <div>
-            <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
-            <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
-          </div>
-          
-          <div>
-            <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Note <span style="text-transform:none;color:{{theme.textFaint}}">(optional)</span></div>
-            <input value="{{ formNote }}" onChange="{{ handleNoteChange }}" placeholder="Quick thoughts..." style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
-          </div>
-          <div onClick="{{ submitEntry }}" style="text-align:center;padding:12px;border-radius:8px;background:{{ submitBg }};color:{{theme.accentText}};font:700 14px Inter;cursor:pointer">Add entry — takes you straight to placement matches</div>
-        </div>
+        </sc-if>
 
         <div style="margin-top:24px">
           <div style="font:700 13px Inter;margin-bottom:12px;color:{{theme.textMuted}}">Recently added</div>
@@ -657,8 +676,7 @@ class Component extends DCLogic {
     dimComparePairIds: null,
     hiddenDims: [],
     comparePairIds: null,
-    calibratingId: null,
-    calibrationFaced: [],
+    placement: null,
     rankFilterCategories: [],
     searchText: '',
     sortKey: 'value-desc',
@@ -686,7 +704,7 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
-    this.rollComparePair(null);
+    this.rollComparePair();
   }
 
   componentDidUpdate() {
@@ -802,6 +820,7 @@ class Component extends DCLogic {
     this.setState((s) => ({
       entries: s.entries.filter((e) => e.id !== id),
       detailId: null, editingDetail: false, editName: '', editNote: '', editCategory: null,
+      placement: (s.placement && (s.placement.entryId === id || s.placement.order.includes(id))) ? null : s.placement,
     }));
   }
 
@@ -829,39 +848,55 @@ class Component extends DCLogic {
 
   eloExpected(a, b) { return 1 / (1 + Math.pow(10, (b - a) / 400)); }
 
-  pickAnchorOpponent(pool, excludeId) {
-    const faced = this.state.calibrationFaced;
-    const sorted = [...pool].filter((e) => e.id !== excludeId).sort((a, b) => b.elo - a.elo);
-    if (!sorted.length) return null;
-    const n = sorted.length;
-    const anchorIdx = [0, Math.floor(n * 0.25), Math.floor(n / 2), Math.floor(n * 0.75), n - 1];
-    for (const idx of anchorIdx) {
-      const cand = sorted[idx];
-      if (cand && !faced.includes(cand.id)) return cand;
-    }
-    return sorted.find((e) => !faced.includes(e.id)) || null;
-  }
-
-  rollComparePair(preferId, forcedPool) {
-    const pool = forcedPool || (this.state.h2hCategory ? this.state.entries.filter((e) => e.category === this.state.h2hCategory) : this.state.entries);
+  rollComparePair() {
+    const pool = this.state.h2hCategory ? this.state.entries.filter((e) => e.category === this.state.h2hCategory) : this.state.entries;
     if (pool.length < 2) { this.setState({ comparePairIds: null, comparePairReason: 'insufficient' }); return; }
     const pairs = this.buildAvailablePairs(pool, null);
     if (!pairs.length) { this.setState({ comparePairIds: null, comparePairReason: 'cooldown' }); return; }
-    let chosen;
-    if (preferId && pool.some((e) => e.id === preferId)) {
-      const withPref = pairs.filter(([x, y]) => x === preferId || y === preferId);
-      if (withPref.length) {
-        const oppIds = withPref.map(([x, y]) => (x === preferId ? y : x));
-        const oppPool = pool.filter((e) => oppIds.includes(e.id));
-        const anchor = this.pickAnchorOpponent(oppPool, preferId) || oppPool[Math.floor(Math.random() * oppPool.length)];
-        chosen = [preferId, anchor.id];
-      } else {
-        chosen = pairs[Math.floor(Math.random() * pairs.length)];
-      }
-    } else {
-      chosen = pairs[Math.floor(Math.random() * pairs.length)];
-    }
+    const chosen = pairs[Math.floor(Math.random() * pairs.length)];
     this.setState({ comparePairIds: chosen, comparePairReason: null });
+  }
+
+  // ---- New-entry placement: binary search against the category's current
+  // ranking (not random Elo matchups). First comparison is against the
+  // current #1, second (if needed) against the current last place, then any
+  // remaining comparisons bisect the interior until the exact slot is found.
+  placementMidIndex(p) {
+    if (p.step === 0) return p.lo;
+    if (p.step === 1) return p.hi - 1;
+    return Math.floor((p.lo + p.hi) / 2);
+  }
+
+  votePlacement(entryWon) {
+    const p = this.state.placement;
+    if (!p) return;
+    const mid = this.placementMidIndex(p);
+    const lo = entryWon ? p.lo : mid + 1;
+    const hi = entryWon ? mid : p.hi;
+    if (lo >= hi) {
+      this.finishPlacement(p, lo);
+    } else {
+      this.setState({ placement: { ...p, lo, hi, step: p.step + 1 } });
+    }
+  }
+
+  finishPlacement(p, idx) {
+    const aboveId = idx > 0 ? p.order[idx - 1] : null;
+    const belowId = idx < p.order.length ? p.order[idx] : null;
+    const GAP = 40;
+    this.setState((s) => {
+      const above = aboveId != null ? s.entries.find((e) => e.id === aboveId) : null;
+      const below = belowId != null ? s.entries.find((e) => e.id === belowId) : null;
+      let elo;
+      if (above && below) elo = Math.round((above.elo + below.elo) / 2);
+      else if (above) elo = above.elo - GAP;
+      else if (below) elo = below.elo + GAP;
+      else elo = 1200;
+      return {
+        entries: s.entries.map((e) => e.id === p.entryId ? { ...e, elo } : e),
+        placement: null,
+      };
+    });
   }
 
   kFactorFor(entry) { return (entry.games || 0) < 5 ? 60 : (this.props.eloKFactor ?? 32); }
@@ -908,11 +943,11 @@ class Component extends DCLogic {
     this.setState({ h2hCategory: key, chainMode: false }, () => {
       const dim = this.state.activeDim ? DIMENSIONS.find((d) => d.key === this.state.activeDim) : null;
       if (dim && key && !dim.groups.includes(CATEGORY_GROUP[key])) {
-        this.setState({ activeDim: null }, () => this.rollComparePair(null));
+        this.setState({ activeDim: null }, () => this.rollComparePair());
       } else if (dim) {
         this.rollDimPair(dim.key, key);
       } else {
-        this.rollComparePair(null);
+        this.rollComparePair();
       }
     });
   }
@@ -995,27 +1030,14 @@ class Component extends DCLogic {
     const expW = this.eloExpected(w.elo, l.elo);
     const expL = this.eloExpected(l.elo, w.elo);
     const wGames = (w.games || 0) + 1, lGames = (l.games || 0) + 1;
-    const calibId = this.state.calibratingId;
-    let nextCalibId = calibId, nextFaced = this.state.calibrationFaced;
-    if (calibId && (winnerId === calibId || loserId === calibId)) {
-      const opponentId = winnerId === calibId ? loserId : winnerId;
-      nextFaced = [...nextFaced, opponentId];
-      const calibGames = winnerId === calibId ? wGames : lGames;
-      const calibPoolSize = this.state.entries.filter((e) => e.category === this.state.rankCategory && e.id !== calibId).length;
-      if (calibGames >= 5 || nextFaced.length >= Math.min(5, calibPoolSize)) { nextCalibId = null; nextFaced = []; }
-    } else {
-      nextCalibId = null; nextFaced = [];
-    }
-    const calibCategory = this.state.rankCategory;
     this.setState((s) => ({
       entries: s.entries.map((e) => {
         if (e.id === winnerId) return { ...e, elo: Math.round(w.elo + kW * (1 - expW)), games: wGames };
         if (e.id === loserId) return { ...e, elo: Math.round(l.elo + kL * (0 - expL)), games: lGames };
         return e;
       }),
-      calibratingId: nextCalibId, calibrationFaced: nextFaced,
       matchupHistory: { ...s.matchupHistory, ...this.recordMatchup(null, winnerId, loserId) },
-    }), () => this.rollComparePair(nextCalibId, nextCalibId ? this.state.entries.filter((e) => e.category === calibCategory) : undefined));
+    }), () => this.rollComparePair());
   }
 
   renderVals() {
@@ -1207,6 +1229,27 @@ class Component extends DCLogic {
       };
     });
     const recentLog = this.state.recentLog.map((e) => ({ name: e.name, category: this.catInfo(e.category).label }));
+
+    let placementUI = null;
+    if (this.state.placement) {
+      const p = this.state.placement;
+      const newE = entries.find((e) => e.id === p.entryId);
+      const midIdx = this.placementMidIndex(p);
+      const opp = entries.find((e) => e.id === p.order[midIdx]);
+      const color = this.catColor(p.category, theme);
+      if (newE && opp) {
+        const remaining = p.hi - p.lo;
+        const shadowColor = this.colorWithAlpha(color, 0.2);
+        placementUI = {
+          categoryLabel: this.catInfo(p.category).label,
+          rangeLabel: `Placing against ${p.order.length} ranked ${p.order.length === 1 ? 'entry' : 'entries'} in ${this.catInfo(p.category).label}${remaining > 1 ? ` — ${remaining} left to narrow down` : ''}`,
+          newCard: { name: newE.name, bg: this.hoverBg('placeNew', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(true), ...this.hoverHandlers('placeNew') },
+          oppCard: { name: opp.name, elo: opp.elo, bg: this.hoverBg('placeOpp', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(false), ...this.hoverHandlers('placeOpp') },
+        };
+      }
+      // if the opponent or the entry itself vanished (e.g. deleted mid-placement),
+      // placementUI stays null this render; deleteEntry() clears state.placement directly.
+    }
 
     // ---- Rank ----
     const rankFilterCats = this.state.rankFilterCategories;
@@ -1423,11 +1466,18 @@ class Component extends DCLogic {
       submitBg: this.state.formName.trim() ? theme.accent : theme.textFaint,
       submitEntry: () => {
         if (!this.state.formName.trim()) return;
-        const newEntry = { id: Date.now(), category: this.state.formCategory, name: this.state.formName.trim(), elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0 };
-        this.setState((s) => ({ entries: [...s.entries, newEntry], recentLog: [newEntry, ...s.recentLog].slice(0, 5), formName: '', formNote: '', view: 'h2h', h2hCategory: newEntry.category, activeDim: null, chainMode: false, calibratingId: newEntry.id, calibrationFaced: [], rankCategory: newEntry.category }),
-          () => this.rollComparePair(newEntry.id, this.state.entries.filter((e) => e.category === newEntry.category)));
+        const category = this.state.formCategory;
+        const newEntry = { id: Date.now(), category, name: this.state.formName.trim(), elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0 };
+        const order = this.state.entries.filter((e) => e.category === category).sort((a, b) => b.elo - a.elo).map((e) => e.id);
+        this.setState((s) => ({
+          entries: [...s.entries, newEntry],
+          recentLog: [newEntry, ...s.recentLog].slice(0, 5),
+          formName: '', formNote: '', rankCategory: category,
+          placement: order.length ? { entryId: newEntry.id, category, order, lo: 0, hi: order.length, step: 0 } : null,
+        }));
       },
       recentLog,
+      isPlacingEntry: !!placementUI, showLogForm: !placementUI, placementUI,
       leaderboardColLabel: leaderboardDimInfo ? leaderboardDimInfo.label : 'Elo',
       leaderboardColLabelIfDim: leaderboardDimInfo ? leaderboardDimInfo.label : '',
       openFilters: () => this.setState({ filtersOpen: true }),
@@ -1452,7 +1502,7 @@ class Component extends DCLogic {
       startChain: () => this.startChain(),
       chainButtonBg: chainMode ? theme.accent2 : 'transparent',
       chainButtonFg: chainMode ? theme.accentText : theme.accent2,
-      selectOverallDim: () => this.setState({ activeDim: null, chainMode: false }, () => this.rollComparePair(null)),
+      selectOverallDim: () => this.setState({ activeDim: null, chainMode: false }, () => this.rollComparePair()),
       overallDimBg: notDimMode ? theme.text : 'transparent',
       overallDimFg: notDimMode ? theme.bg : theme.textMuted,
       isDimMode, notDimMode,
@@ -1468,7 +1518,7 @@ class Component extends DCLogic {
       leaderboard, hasComparePair, noComparePair: !hasComparePair, pairA, pairB, compareColor,
       voteA: () => hasComparePair && this.vote(this.state.comparePairIds[0], this.state.comparePairIds[1]),
       voteB: () => hasComparePair && this.vote(this.state.comparePairIds[1], this.state.comparePairIds[0]),
-      skipPair: () => this.rollComparePair(null),
+      skipPair: () => this.rollComparePair(),
       searchText: this.state.searchText,
       handleSearchChange: (e) => this.setState({ searchText: e.target.value }),
       sortKey: this.state.sortKey, handleSortChange: (e) => this.setState({ sortKey: e.target.value }),
