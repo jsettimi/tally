@@ -522,6 +522,21 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;startingView&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dashboard&quot;, &quot;options&quot;: [&quot;dashboard&quot;, &quot;log&quot;, &quot;h2h&quot;, &quot;rank&quot;, &quot;graph&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;defaultTheme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dark&quot;, &quot;options&quot;: [&quot;dark&quot;, &quot;light&quot;], &quot;tsType&quot;: &quot;string&quot;}, &quot;eloKFactor&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 32, &quot;min&quot;: 8, &quot;max&quot;: 64, &quot;step&quot;: 4, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;&quot;}, &quot;matchupCooldownHours&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 6, &quot;min&quot;: 0, &quot;max&quot;: 72, &quot;step&quot;: 1, &quot;tsType&quot;: &quot;number&quot;, &quot;unit&quot;: &quot;h&quot;, &quot;section&quot;: &quot;Head-to-Head&quot;}}">
+// One-time wipe of any sample/seed data saved to localStorage by earlier
+// builds of this app (before seeding was removed). Bumping DATA_VERSION
+// forces every browser to clear stale seed data exactly once.
+(function wipeStaleSeedData() {
+  try {
+    var DATA_VERSION = '2';
+    if (localStorage.getItem('tally-dataVersion') !== DATA_VERSION) {
+      localStorage.removeItem('tally-entries');
+      localStorage.removeItem('tally-customCategories');
+      localStorage.removeItem('tally-matchupHistory');
+      localStorage.setItem('tally-dataVersion', DATA_VERSION);
+    }
+  } catch (e) {}
+})();
+
 const CATS = [
   { key: 'movies', label: 'Movies', code: 'MV', hue: 0 },
   { key: 'tv', label: 'TV', code: 'TV', hue: 34 },
