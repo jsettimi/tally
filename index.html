@@ -258,7 +258,7 @@
                 </div>
               </div>
             </sc-if>
-          </div><div style="width: 263px; flex: none; background: {{theme.panel}}; border: 1px solid {{theme.border}}; border-radius: 12px; padding: 16px; box-sizing: border-box; height: 383px">
+          </div><div style="width: 263px; flex: none; background: {{theme.panel}}; border: 1px solid {{theme.border}}; border-radius: 12px; padding: 16px; box-sizing: border-box">
             
             <sc-if value="{{ rankPanel.hasRows }}" hint-placeholder-val="{{ false }}">
               
@@ -266,7 +266,7 @@
             <sc-if value="{{ rankPanel.empty }}" hint-placeholder-val="{{ true }}">
               <div style="font:500 12px Inter;color:{{theme.textMuted}};padding:4px 0">No entries yet in this category.</div>
             </sc-if>
-          <div style="position: relative; height: 361px; width: 217px">
+          <div style="position: relative; height: {{ rankPanel.heightPx }}; width: 217px">
                 <sc-for list="{{ rankPanel.rows }}" as="row" hint-placeholder-count="6">
                   <div style="position: absolute; top: 33px; left: 0px; height: 36px; transform: {{ row.transform }}; transition: transform .45s cubic-bezier(.22,.8,.25,1),background .2s; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 8px; background: {{ row.bg }}; border: {{ row.border }}; z-index: {{ row.z }}; box-sizing: border-box; width: 228px">
                     <div style="font:800 12px 'JetBrains Mono',monospace;color:{{ row.rankColor }};width:20px;flex:none">{{ row.rank }}</div>
@@ -670,12 +670,16 @@ const FIELD_DEFS = {
   places: [{ key: 'timeSpent', label: 'Time Spent', numeric: true }, { key: 'country', label: 'Country' }, { key: 'city', label: 'City' }, { key: 'state', label: 'State' }],
 };
 
-// Umbrella-item naming convention: "Carbone - Vodka Pasta", "Succession S4E3 — Connor's Wedding".
-// Autocomplete only ever suggests the part before the separator, since the
-// specific item after it is exactly the thing that shouldn't repeat.
+// Umbrella-item naming convention: "Carbone - Vodka Pasta", "Succession S4E3 — Connor's Wedding",
+// "Bojack Horseman Season 1". Autocomplete only ever suggests the umbrella
+// part, since the specific item/season/episode after it is exactly the thing
+// that shouldn't repeat — otherwise every season of a show would show up as
+// its own separate suggestion.
 const NAME_SEPARATOR_RE = /\s+[-–—]\s+/;
 const SUGGEST_MIN_CHARS = 2;
 function namePrefix(name) {
+  const parsed = parseLevel(name);
+  if (parsed.level !== 'show') return parsed.base;
   const m = NAME_SEPARATOR_RE.exec(name);
   return (m ? name.slice(0, m.index) : name).trim();
 }
@@ -1450,6 +1454,9 @@ class Component extends DCLogic {
     const formBlurFilter = this.state.placement ? 'blur(6px) saturate(60%)' : 'none';
     const formPointerEvents = this.state.placement ? 'none' : 'auto';
 
+    const RANK_ROW_H = 40;
+    const RANK_PANEL_TITLE_H = 33;
+    const RANK_PANEL_MAX_ROWS = 10;
     let placementUI = null;
     if (this.state.placement) {
       const p = this.state.placement;
@@ -1463,7 +1470,7 @@ class Component extends DCLogic {
         const shadowColor = this.colorWithAlpha(color, 0.2);
         const insertIndex = settled ? p.finalIdx : midIdx;
         const ROW_H = 40;
-        const rankedList = p.order.map((id, i) => {
+        const rankedListFull = p.order.map((id, i) => {
           const e = entries.find((x) => x.id === id);
           const disp = i < insertIndex ? i : i + 1;
           return {
@@ -1473,12 +1480,15 @@ class Component extends DCLogic {
             rankColor: theme.textMuted, nameColor: theme.text, fontWeight: 600, z: 1,
           };
         });
-        rankedList.push({
+        rankedListFull.push({
           id: newE.id, name: newE.name, rank: insertIndex + 1,
           transform: `translateY(${insertIndex * ROW_H}px)`,
           bg: this.colorWithAlpha(color, 0.22), border: `2px solid ${color}`,
           rankColor: color, nameColor: theme.text, fontWeight: 800, z: 2,
         });
+        // cap the side preview at 10 rows (by final rank, not array order —
+        // the new entry is always pushed last above regardless of where it ranks)
+        const rankedList = rankedListFull.filter((r) => r.rank <= 10);
         placementUI = {
           categoryLabel: this.catInfo(p.category).label,
           settled, notSettled: !settled,
@@ -1487,18 +1497,17 @@ class Component extends DCLogic {
           newCard: { name: newE.name, bg: this.hoverBg('placeNew', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(true), ...this.hoverHandlers('placeNew') },
           oppCard: opp ? { name: opp.name, elo: opp.elo, bg: this.hoverBg('placeOpp', theme.panel, color, 0.16), shadowColor, onSelect: () => this.votePlacement(false), ...this.hoverHandlers('placeOpp') } : null,
           rankedList,
-          rankedListHeightPx: `${(p.order.length + 1) * ROW_H}px`,
+          rankedListHeightPx: `${RANK_PANEL_TITLE_H + rankedList.length * ROW_H}px`,
         };
       }
     }
 
-    const RANK_ROW_H = 40;
     let rankPanel;
     if (placementUI) {
       rankPanel = { title: `${placementUI.categoryLabel} ranking`, rows: placementUI.rankedList, heightPx: placementUI.rankedListHeightPx, hasRows: true, empty: false };
     } else {
       const panelCat = this.state.formCategory;
-      const catEntries = entries.filter((e) => e.category === panelCat).sort((a, b) => b.elo - a.elo);
+      const catEntries = entries.filter((e) => e.category === panelCat).sort((a, b) => b.elo - a.elo).slice(0, RANK_PANEL_MAX_ROWS);
       rankPanel = {
         title: `${this.catInfo(panelCat).label} ranking`,
         rows: catEntries.map((e, i) => ({
@@ -1507,7 +1516,7 @@ class Component extends DCLogic {
           bg: 'transparent', border: `1px solid ${theme.border}`,
           rankColor: theme.textMuted, nameColor: theme.text, fontWeight: 600, z: 1,
         })),
-        heightPx: `${catEntries.length * RANK_ROW_H}px`,
+        heightPx: `${RANK_PANEL_TITLE_H + catEntries.length * RANK_ROW_H}px`,
         hasRows: catEntries.length > 0, empty: catEntries.length === 0,
       };
     }
