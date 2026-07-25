@@ -193,7 +193,15 @@
                 </div>
                 <div>
                   <div style="font:600 11px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:8px">Name</div>
-                  <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+                  <input value="{{ formName }}" onChange="{{ handleNameChange }}" placeholder="e.g. Dune: Part Two" list="name-suggestions" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 14px Inter;outline:none">
+                  <datalist id="name-suggestions">
+                    <sc-for list="{{ nameSuggestionOptions }}" as="s" hint-placeholder-count="5">
+                      <option value="{{ s }}"></option>
+                    </sc-for>
+                  </datalist>
+                  <sc-if value="{{ isDuplicateEntry }}" hint-placeholder-val="{{ false }}">
+                    <div style="font:500 12px Inter;color:#f85149;margin-top:6px">{{ duplicateWarning }}</div>
+                  </sc-if>
                 </div>
 
                 <div>
@@ -210,7 +218,12 @@
                         <sc-for list="{{ advancedFieldRows }}" as="f" hint-placeholder-count="4">
                           <div>
                             <div style="font:600 10px Inter;text-transform:uppercase;letter-spacing:.4px;color:{{theme.textMuted}};margin-bottom:6px">{{ f.label }}</div>
-                            <input value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 13px Inter;outline:none">
+                            <input value="{{ f.value }}" onChange="{{ f.onChange }}" list="{{ f.listId }}" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid {{theme.border}};background:{{theme.inputBg}};color:{{theme.text}};font:500 13px Inter;outline:none">
+                            <datalist id="{{ f.listId }}">
+                              <sc-for list="{{ f.suggestions }}" as="s" hint-placeholder-count="5">
+                                <option value="{{ s }}"></option>
+                              </sc-for>
+                            </datalist>
                           </div>
                         </sc-for>
                       </div>
@@ -647,15 +660,24 @@ const CATS = [
 
 const CATEGORY_GROUP = { movies: 'media', tv: 'media', books: 'media', food: 'food', workouts: 'activity', sports: 'activity', habits: 'habits', places: 'places', products: 'products', general: 'general' };
 const FIELD_DEFS = {
-  movies: [{ key: 'director', label: 'Director' }, { key: 'lead1', label: 'Lead 1' }, { key: 'lead2', label: 'Lead 2' }, { key: 'year', label: 'Year' }, { key: 'length', label: 'Length' }],
-  tv: [{ key: 'episodes', label: 'Episodes' }, { key: 'network', label: 'Network' }],
-  books: [{ key: 'author', label: 'Author' }, { key: 'pages', label: 'Pages' }, { key: 'genre', label: 'Genre' }],
-  food: [{ key: 'price', label: 'Price' }, { key: 'calories', label: 'Calories' }],
+  movies: [{ key: 'director', label: 'Director' }, { key: 'lead1', label: 'Lead 1' }, { key: 'lead2', label: 'Lead 2' }, { key: 'year', label: 'Year', numeric: true }, { key: 'length', label: 'Length', numeric: true }],
+  tv: [{ key: 'episodes', label: 'Episodes', numeric: true }, { key: 'network', label: 'Network' }],
+  books: [{ key: 'author', label: 'Author' }, { key: 'pages', label: 'Pages', numeric: true }, { key: 'genre', label: 'Genre' }],
+  food: [{ key: 'price', label: 'Price', numeric: true }, { key: 'calories', label: 'Calories', numeric: true }],
   workouts: [{ key: 'targetArea', label: 'Target Area' }],
-  sports: [{ key: 'wins', label: 'Wins' }, { key: 'losses', label: 'Losses' }, { key: 'profit', label: 'Profit' }],
-  products: [{ key: 'price', label: 'Price' }, { key: 'whereBought', label: 'Where Bought' }],
-  places: [{ key: 'timeSpent', label: 'Time Spent' }, { key: 'country', label: 'Country' }, { key: 'city', label: 'City' }, { key: 'state', label: 'State' }],
+  sports: [{ key: 'wins', label: 'Wins', numeric: true }, { key: 'losses', label: 'Losses', numeric: true }, { key: 'profit', label: 'Profit', numeric: true }],
+  products: [{ key: 'price', label: 'Price', numeric: true }, { key: 'whereBought', label: 'Where Bought' }],
+  places: [{ key: 'timeSpent', label: 'Time Spent', numeric: true }, { key: 'country', label: 'Country' }, { key: 'city', label: 'City' }, { key: 'state', label: 'State' }],
 };
+
+// Umbrella-item naming convention: "Carbone - Vodka Pasta", "Succession S4E3 — Connor's Wedding".
+// Autocomplete only ever suggests the part before the separator, since the
+// specific item after it is exactly the thing that shouldn't repeat.
+const NAME_SEPARATOR_RE = /\s+[-–—]\s+/;
+function namePrefix(name) {
+  const m = NAME_SEPARATOR_RE.exec(name);
+  return (m ? name.slice(0, m.index) : name).trim();
+}
 const GROUP_LABELS = { media: 'Movies, TV & Books', food: 'Food', activity: 'Workouts & Sports', habits: 'Habits', places: 'Places', products: 'Products', general: 'General' };
 const DIMENSIONS = [
   { key: 'funny', label: 'Funny', groups: ['media'], question: 'Which is funnier?' },
@@ -925,6 +947,28 @@ class Component extends DCLogic {
   getCategories() { return [...CATS, ...this.state.customCategories]; }
 
   catInfo(key) { return this.getCategories().find((c) => c.key === key) || CATS[0]; }
+
+  nameSuggestions(category) {
+    const seen = new Set();
+    const out = [];
+    this.state.entries.filter((e) => e.category === category).forEach((e) => {
+      const p = namePrefix(e.name);
+      const k = p.toLowerCase();
+      if (p && !seen.has(k)) { seen.add(k); out.push(p); }
+    });
+    return out;
+  }
+
+  fieldSuggestions(category, key) {
+    const seen = new Set();
+    const out = [];
+    this.state.entries.filter((e) => e.category === category && e.meta && e.meta[key]).forEach((e) => {
+      const v = e.meta[key].trim();
+      const k = v.toLowerCase();
+      if (v && !seen.has(k)) { seen.add(k); out.push(v); }
+    });
+    return out;
+  }
 
   addCustomCategory() {
     const name = this.state.newCategoryName.trim();
@@ -1391,7 +1435,13 @@ class Component extends DCLogic {
       key: f.key, label: f.label,
       value: this.state.advFields[f.key] || '',
       onChange: (ev) => this.setState((s) => ({ advFields: { ...s.advFields, [f.key]: ev.target.value } })),
+      listId: `adv-suggest-${f.key}`,
+      suggestions: f.numeric ? [] : this.fieldSuggestions(this.state.formCategory, f.key),
     }));
+    const nameSuggestionOptions = this.nameSuggestions(this.state.formCategory);
+    const trimmedFormName = this.state.formName.trim();
+    const isDuplicateEntry = !!trimmedFormName && this.state.entries.some((en) => en.category === this.state.formCategory && en.name.trim().toLowerCase() === trimmedFormName.toLowerCase());
+    const duplicateWarning = isDuplicateEntry ? `You already have "${trimmedFormName}" logged in ${this.catInfo(this.state.formCategory).label}.` : '';
     const formBlurFilter = this.state.placement ? 'blur(6px) saturate(60%)' : 'none';
     const formPointerEvents = this.state.placement ? 'none' : 'auto';
 
@@ -1685,14 +1735,18 @@ class Component extends DCLogic {
       formName: this.state.formName, formNote: this.state.formNote,
       handleNameChange: (e) => this.setState({ formName: e.target.value }),
       handleNoteChange: (e) => this.setState({ formNote: e.target.value }),
-      submitBg: this.state.formName.trim() ? theme.accent : theme.textFaint,
+      nameSuggestionOptions, isDuplicateEntry, duplicateWarning,
+      submitBg: (this.state.formName.trim() && !isDuplicateEntry) ? theme.accent : theme.textFaint,
       submitEntry: () => {
-        if (!this.state.formName.trim()) return;
-        this.clearPlacementTimer();
+        const name = this.state.formName.trim();
+        if (!name) return;
         const category = this.state.formCategory;
+        const isDup = this.state.entries.some((en) => en.category === category && en.name.trim().toLowerCase() === name.toLowerCase());
+        if (isDup) return;
+        this.clearPlacementTimer();
         const meta = {};
         advFieldDefs.forEach((f) => { const v = (this.state.advFields[f.key] || '').trim(); if (v) meta[f.key] = v; });
-        const newEntry = { id: Date.now(), category, name: this.state.formName.trim(), elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0, meta: Object.keys(meta).length ? meta : undefined };
+        const newEntry = { id: Date.now(), category, name, elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0, meta: Object.keys(meta).length ? meta : undefined };
         const order = this.state.entries.filter((e) => e.category === category).sort((a, b) => b.elo - a.elo).map((e) => e.id);
         this.setState((s) => ({
           entries: [...s.entries, newEntry],
