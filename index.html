@@ -1092,6 +1092,7 @@ class Component extends DCLogic {
     const aboveId = idx > 0 ? p.order[idx - 1] : null;
     const belowId = idx < p.order.length ? p.order[idx] : null;
     const GAP = 40;
+    const ts = Date.now();
     this.setState((s) => {
       const above = aboveId != null ? s.entries.find((e) => e.id === aboveId) : null;
       const below = belowId != null ? s.entries.find((e) => e.id === belowId) : null;
@@ -1101,7 +1102,7 @@ class Component extends DCLogic {
       else if (below) elo = below.elo + GAP;
       else elo = 1200;
       return {
-        entries: s.entries.map((e) => e.id === p.entryId ? { ...e, elo } : e),
+        entries: s.entries.map((e) => e.id === p.entryId ? { ...e, elo, eloHistory: [...(e.eloHistory || []), { ts, elo }] } : e),
         placement: null,
       };
     });
@@ -1242,10 +1243,13 @@ class Component extends DCLogic {
     const expW = this.eloExpected(w.elo, l.elo);
     const expL = this.eloExpected(l.elo, w.elo);
     const wGames = (w.games || 0) + 1, lGames = (l.games || 0) + 1;
+    const wElo = Math.round(w.elo + kW * (1 - expW));
+    const lElo = Math.round(l.elo + kL * (0 - expL));
+    const ts = Date.now();
     this.setState((s) => ({
       entries: s.entries.map((e) => {
-        if (e.id === winnerId) return { ...e, elo: Math.round(w.elo + kW * (1 - expW)), games: wGames };
-        if (e.id === loserId) return { ...e, elo: Math.round(l.elo + kL * (0 - expL)), games: lGames };
+        if (e.id === winnerId) return { ...e, elo: wElo, games: wGames, eloHistory: [...(e.eloHistory || []), { ts, elo: wElo }] };
+        if (e.id === loserId) return { ...e, elo: lElo, games: lGames, eloHistory: [...(e.eloHistory || []), { ts, elo: lElo }] };
         return e;
       }),
       matchupHistory: { ...s.matchupHistory, ...this.recordMatchup(null, winnerId, loserId) },
@@ -1760,7 +1764,8 @@ class Component extends DCLogic {
         this.clearPlacementTimer();
         const meta = {};
         advFieldDefs.forEach((f) => { const v = (this.state.advFields[f.key] || '').trim(); if (v) meta[f.key] = v; });
-        const newEntry = { id: Date.now(), category, name, elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0, meta: Object.keys(meta).length ? meta : undefined };
+        const now = Date.now();
+        const newEntry = { id: now, category, name, elo: 1200, date: new Date().toISOString().slice(0, 10), note: this.state.formNote.trim(), parentId: null, games: 0, meta: Object.keys(meta).length ? meta : undefined, eloHistory: [{ ts: now, elo: 1200 }] };
         const order = this.state.entries.filter((e) => e.category === category).sort((a, b) => b.elo - a.elo).map((e) => e.id);
         this.setState((s) => ({
           entries: [...s.entries, newEntry],
