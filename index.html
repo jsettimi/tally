@@ -414,7 +414,7 @@
         </sc-if>
 
       </div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:64px">
-          <div onClick="{{ selectOverallDim }}" style="padding: 7px 13px; border-radius: 20px; font: 700 12px Inter; cursor: pointer; background: {{ overallDimBg }}; color: #FFFFFF; border: 1px solid {{theme.border}}; border-color: #F0883D">Overall (Elo)</div>
+          <div onClick="{{ selectOverallDim }}" style="padding: 7px 13px; border-radius: 20px; font: 700 12px Inter; cursor: pointer; background: {{ overallDimBg }}; color: {{ overallDimFg }}; border: 1px solid {{theme.border}}; border-color: #F0883D">Overall (Elo)</div>
           <sc-for list="{{ dimensionChips }}" as="d" hint-placeholder-count="6">
             <div onClick="{{ d.onSelect }}" onMouseEnter="{{ d.onHoverIn }}" onMouseLeave="{{ d.onHoverOut }}" style="padding:7px 13px;border-radius:20px;font:600 12px Inter;cursor:pointer;background:{{ d.bg }};color:{{ d.fg }};border:1px solid {{ d.border }};transition:background .15s">{{ d.label }}</div>
           </sc-for>
@@ -1599,7 +1599,7 @@ class Component extends DCLogic {
       {
         key: 'all', label: 'All',
         onSelect: () => this.selectH2HCategory(null),
-        bg: this.hoverBg('h2h:all', !h2hCategory ? theme.text : 'transparent', theme.accent, undefined, !h2hCategory), fg: !h2hCategory ? theme.bg : theme.text,
+        bg: this.hoverBg('h2h:all', !h2hCategory ? theme.accent : 'transparent', theme.accent, undefined, !h2hCategory), fg: !h2hCategory ? theme.accentText : theme.text,
         border: theme.border, borderWidth: 1, opacity: 1,
         ...this.hoverHandlers('h2h:all'),
       },
@@ -1791,8 +1791,8 @@ class Component extends DCLogic {
       chainButtonBg: chainMode ? theme.accent2 : 'transparent',
       chainButtonFg: chainMode ? theme.accentText : theme.accent2,
       selectOverallDim: () => { this.clearMatchAnimTimers(); this.setState({ activeDim: null, chainMode: false, matchAnim: null }, () => this.rollComparePair()); },
-      overallDimBg: notDimMode ? theme.text : 'transparent',
-      overallDimFg: notDimMode ? theme.bg : theme.textMuted,
+      overallDimBg: notDimMode ? theme.accent : 'transparent',
+      overallDimFg: notDimMode ? theme.accentText : theme.textMuted,
       isDimMode, notDimMode,
       showOverallPairArea: isH2H && notDimMode,
       showDimPairArea: isH2H && isDimMode,
