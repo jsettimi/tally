@@ -674,6 +674,7 @@ const FIELD_DEFS = {
 // Autocomplete only ever suggests the part before the separator, since the
 // specific item after it is exactly the thing that shouldn't repeat.
 const NAME_SEPARATOR_RE = /\s+[-–—]\s+/;
+const SUGGEST_MIN_CHARS = 2;
 function namePrefix(name) {
   const m = NAME_SEPARATOR_RE.exec(name);
   return (m ? name.slice(0, m.index) : name).trim();
@@ -948,24 +949,28 @@ class Component extends DCLogic {
 
   catInfo(key) { return this.getCategories().find((c) => c.key === key) || CATS[0]; }
 
-  nameSuggestions(category) {
+  nameSuggestions(category, query) {
+    const q = (query || '').trim().toLowerCase();
+    if (q.length < SUGGEST_MIN_CHARS) return [];
     const seen = new Set();
     const out = [];
     this.state.entries.filter((e) => e.category === category).forEach((e) => {
       const p = namePrefix(e.name);
       const k = p.toLowerCase();
-      if (p && !seen.has(k)) { seen.add(k); out.push(p); }
+      if (p && k.startsWith(q) && !seen.has(k)) { seen.add(k); out.push(p); }
     });
     return out;
   }
 
-  fieldSuggestions(category, key) {
+  fieldSuggestions(category, key, query) {
+    const q = (query || '').trim().toLowerCase();
+    if (q.length < SUGGEST_MIN_CHARS) return [];
     const seen = new Set();
     const out = [];
     this.state.entries.filter((e) => e.category === category && e.meta && e.meta[key]).forEach((e) => {
       const v = e.meta[key].trim();
       const k = v.toLowerCase();
-      if (v && !seen.has(k)) { seen.add(k); out.push(v); }
+      if (v && k.startsWith(q) && !seen.has(k)) { seen.add(k); out.push(v); }
     });
     return out;
   }
@@ -1436,9 +1441,9 @@ class Component extends DCLogic {
       value: this.state.advFields[f.key] || '',
       onChange: (ev) => this.setState((s) => ({ advFields: { ...s.advFields, [f.key]: ev.target.value } })),
       listId: `adv-suggest-${f.key}`,
-      suggestions: f.numeric ? [] : this.fieldSuggestions(this.state.formCategory, f.key),
+      suggestions: f.numeric ? [] : this.fieldSuggestions(this.state.formCategory, f.key, this.state.advFields[f.key]),
     }));
-    const nameSuggestionOptions = this.nameSuggestions(this.state.formCategory);
+    const nameSuggestionOptions = this.nameSuggestions(this.state.formCategory, this.state.formName);
     const trimmedFormName = this.state.formName.trim();
     const isDuplicateEntry = !!trimmedFormName && this.state.entries.some((en) => en.category === this.state.formCategory && en.name.trim().toLowerCase() === trimmedFormName.toLowerCase());
     const duplicateWarning = isDuplicateEntry ? `You already have "${trimmedFormName}" logged in ${this.catInfo(this.state.formCategory).label}.` : '';
